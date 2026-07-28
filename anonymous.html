@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Full Stack Dentist — Scorecard</title>
+<title>The Full Stack Dentist — Anonymous Scorecard</title>
 <style>
   :root{
     color-scheme: light;
@@ -230,7 +230,7 @@
 
 <header class="hero">
   <button class="themetoggle" id="themeBtn">Dark</button>
-  <p class="eyebrow">The Airway Dentists · 90-Day Development Review</p>
+  <p class="eyebrow">The Airway Dentists · Anonymous Self-Assessment</p>
   <h1>The Full Stack Dentist<br><span class="thin">Scorecard</span></h1>
   <p class="lede">You were hired for one thing and you're measured on one thing: what you produce with your hands. That's the ceiling. The practices that grow extraordinarily aren't built by the best clinician in the building — they're built by the dentist who is <strong>round instead of spiky</strong>. Six domains. Score yourself honestly. Your number is not the point; <strong>your shape is</strong>.</p>
 </header>
@@ -425,8 +425,8 @@ const SHAPES = [
 
 /* ============ deployment config ============ */
 const CONFIG = {
-  mode: "review",          // "anonymous" | "review"
-  submitEndpoint: "https://script.google.com/macros/s/AKfycbyU1o2v08uinEXn0TTPYU96EBIDjDIarJwmqoGP_xEuHYYNC59SsvfmMIxRpcM42YcOag/exec",        // paste your Google Apps Script /exec URL here
+  mode: "anonymous",          // "anonymous" | "review"
+  submitEndpoint: "",        // paste your Google Apps Script /exec URL here
   submitEmail: "kyle@theairwaydentists.com"   // mailto fallback when no endpoint is set
 };
 
