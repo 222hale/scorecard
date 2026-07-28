@@ -922,7 +922,7 @@ function render(){
     focusNames: focus.map(d=>d.short).join(' + '),
     rescoreLink
   }), '_blank', 'noopener');
-  if(CONFIG.mode==='review') wireSubmit(total, tier, focus);
+  if(CONFIG.mode==='review') wireSubmit(total, tier, focus, shape, spread);
 
   $('#tblBody').innerHTML = DOMAINS.map(d=>
     `<tr><td>${d.short}</td><td>${LADDER[state[d.id]-1].name}</td><td class="n">${state[d.id]}</td></tr>`
@@ -930,7 +930,7 @@ function render(){
 }
 
 /* ---------- submit (review mode) ---------- */
-function wireSubmit(total, tier, focus){
+function wireSubmit(total, tier, focus, shape, spread){
   const btn=$('#subBtn'), msg=$('#subMsg');
 
   // a second scoring can follow the first on the same page — never leave the button dead
@@ -980,7 +980,10 @@ function wireSubmit(total, tier, focus){
       msg.textContent='Opening your email…'; msg.className='submsg ok';
       return;
     }
-    btn.disabled=true; msg.textContent='Sending…'; msg.className='submsg';
+    btn.disabled=true; msg.textContent='Building the report…'; msg.className='submsg';
+    payload.report = buildReport(total, tier, focus, shape, spread);
+    payload.chart  = await radarPng();
+    msg.textContent='Sending…';
     try{
       await fetch(CONFIG.submitEndpoint, {
         method:'POST', mode:'no-cors',
@@ -996,6 +999,91 @@ function wireSubmit(total, tier, focus){
       btn.disabled=false;
       msg.textContent='Could not send — copy your result link instead.'; msg.className='submsg warn';
     }
+  };
+}
+
+/* ---------- radar -> PNG (for the archived PDF) ---------- */
+function radarPng(){
+  // the axis labels sit outside the on-screen viewBox (overflow:visible), so the
+  // export needs a padded box or they get clipped in the raster
+  const VB = {x:-46, y:-6, w:472, h:400}, SCALE = 2;
+  const W = VB.w * SCALE, H = VB.h * SCALE;
+  return new Promise(function(res){
+    const svg = document.querySelector('#results svg');
+    if(!svg || !window.btoa) return res('');
+    const root = document.documentElement, prev = root.dataset.theme;
+    root.dataset.theme = 'light';                       // archive copy is always light
+    let str;
+    try{
+      const clone = svg.cloneNode(true);
+      const src = svg.querySelectorAll('*'), dst = clone.querySelectorAll('*');
+      const props = ['fill','stroke','stroke-width','stroke-dasharray','stroke-linejoin',
+                     'font-size','font-weight','font-family','text-anchor','dominant-baseline'];
+      for(let i=0;i<src.length;i++){
+        const cs = getComputedStyle(src[i]);
+        props.forEach(function(p){
+          const v = cs.getPropertyValue(p);
+          if(v) dst[i].style.setProperty(p, v);
+        });
+      }
+      clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+      clone.setAttribute('viewBox', VB.x+' '+VB.y+' '+VB.w+' '+VB.h);
+      clone.setAttribute('width', W); clone.setAttribute('height', H);
+      str = new XMLSerializer().serializeToString(clone);
+    } finally { root.dataset.theme = prev; }
+
+    const img = new Image();
+    img.onload = function(){
+      try{
+        const cv = document.createElement('canvas');
+        cv.width = W; cv.height = H;
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
+        ctx.drawImage(img,0,0,W,H);
+        res(cv.toDataURL('image/png').split(',')[1]);
+      }catch(e){ res(''); }
+    };
+    img.onerror = function(){ res(''); };
+    img.src = 'data:image/svg+xml;base64,' +
+      btoa(unescape(encodeURIComponent(str)));
+  });
+}
+
+/* ---------- everything the server needs to lay out the PDF ---------- */
+function buildReport(total, tier, focus, shape, spread){
+  const sup = scorerRole === 'supervisor';
+  const val = sel => { const el = $(sel); return el ? el.value.trim() : ''; };
+  const meta = [
+    ['Doctor', val('#subName') || '—'],
+    ['Scored by', sup ? (val('#subScorer') || '—') : (val('#subName') || '—')],
+    ['Scoring type', sup ? 'Lead clinician assessment' : 'Self-assessment'],
+    ['Location', val('#subLoc') || '—'],
+    ['Date', today()]
+  ];
+  return {
+    title: 'The Full Stack Dentist Scorecard',
+    meta: meta,
+    headline: total + ' of ' + (DOMAINS.length*5) + '  —  ' + tier.name,
+    tierDesc: tier.desc,
+    shape: shape.name + '  ·  spread of ' + spread,
+    shapeDesc: shape.tx,
+    ceiling: focus[0].short + '  ·  level ' + state[focus[0].id],
+    rescore: prettyDate(rescoreDate()),
+    domains: DOMAINS.map(d => [
+      d.short, String(state[d.id]), LADDER[state[d.id]-1].name, d.levels[state[d.id]-1]
+    ]),
+    plan: focus.map(d => ({
+      domain: d.short,
+      move: state[d.id]===5 ? 'Level 5 — hold it and hand it off'
+            : 'Level ' + state[d.id] + ' → ' + (state[d.id]+1) + '  ·  ' +
+              LADDER[state[d.id]-1].name + ' → ' + LADDER[state[d.id]].name,
+      actions: d.actions[state[d.id]-1]
+    })),
+    commitment: [
+      ['The action', commit.action || '—'],
+      ['Who holds me to it', commit.who || '—'],
+      ['By when', commit.date || '—']
+    ]
   };
 }
 
