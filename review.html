@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Full Stack Dentist — Scorecard</title>
+<style>
+  :root{
+    color-scheme: light;
+    --surface-1:#fcfcfb; --page:#f9f9f7; --card:#ffffff;
+    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7;
+    --series-1:#2a78d6; --series-1-soft:rgba(42,120,214,.16);
+    --border:rgba(11,11,11,.10);
+    --chip:#f0efec;
+    --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+    --shadow:0 1px 2px rgba(11,11,11,.04), 0 8px 24px rgba(11,11,11,.05);
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --surface-1:#1a1a19; --page:#0d0d0d; --card:#1a1a19;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835;
+    --series-1:#3987e5; --series-1-soft:rgba(57,135,229,.20);
+    --border:rgba(255,255,255,.10);
+    --chip:#232322;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page); color:var(--ink);
+    font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px 96px}
+
+  /* ---------- header ---------- */
+  header.hero{padding:56px 0 32px;border-bottom:1px solid var(--border);margin-bottom:40px;position:relative}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--series-1);font-weight:650;margin:0 0 14px}
+  h1{font-size:clamp(32px,5vw,52px);line-height:1.05;letter-spacing:-.025em;margin:0 0 16px;font-weight:700}
+  h1 .thin{font-weight:300;color:var(--ink-2)}
+  .lede{font-size:18px;line-height:1.55;color:var(--ink-2);max-width:63ch;margin:0}
+  .lede strong{color:var(--ink);font-weight:600}
+  .themetoggle{position:absolute;top:24px;right:0;background:var(--chip);border:1px solid var(--border);
+    color:var(--ink-2);border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer}
+  .themetoggle:hover{color:var(--ink)}
+
+  /* ---------- ladder ---------- */
+  section{margin:0 0 48px}
+  h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+     font-weight:650;margin:0 0 6px}
+  .sectionsub{color:var(--ink-2);margin:0 0 20px;font-size:15px;max-width:66ch}
+  .basenote{margin:0 0 14px;padding:11px 14px;border-radius:10px;font-size:14px;line-height:1.5;
+    color:var(--ink-2);background:var(--series-1-soft);border:1px solid var(--border);max-width:72ch}
+  .basenote strong{color:var(--ink)}
+  .ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:var(--border);
+    border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .rung{background:var(--card);padding:16px 14px}
+  .rung .num{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--series-1)}
+  .rung .nm{font-weight:650;margin:5px 0 4px;font-size:15px}
+  .rung .bl{font-size:13px;line-height:1.45;color:var(--ink-2)}
+  .rung.plateau{background:linear-gradient(var(--series-1-soft),var(--series-1-soft)),var(--card)}
+  .plateauNote{margin:14px 0 0;font-size:14px;color:var(--ink-2)}
+  .plateauNote b{color:var(--ink)}
+
+  /* ---------- domains ---------- */
+  .domain{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:22px 22px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .dhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+  .dnum{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+  .dname{font-size:21px;font-weight:680;letter-spacing:-.01em;margin:0}
+  .dprin{font-size:13px;color:var(--series-1);font-weight:600;font-style:italic}
+  .dq{font-size:14px;color:var(--ink-2);margin:0 0 16px}
+  .opts{display:grid;gap:7px}
+  .opt{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;
+    border:1px solid var(--border);border-radius:10px;padding:11px 13px;cursor:pointer;
+    background:transparent;text-align:left;font:inherit;color:inherit;transition:border-color .12s,background .12s}
+  .opt:hover{background:var(--chip)}
+  .opt .lv{display:grid;place-items:center;width:26px;height:26px;border-radius:7px;
+    background:var(--chip);color:var(--ink-2);font-size:13px;font-weight:700;
+    font-variant-numeric:tabular-nums;border:1px solid var(--border)}
+  .opt .tx{font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+  .opt[aria-pressed="true"]{border-color:var(--series-1);background:var(--series-1-soft)}
+  .opt[aria-pressed="true"] .lv{background:var(--series-1);color:#fff;border-color:transparent}
+  .opt[aria-pressed="true"] .tx{color:var(--ink)}
+  .lvname{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    font-weight:700;color:var(--muted);margin-bottom:3px}
+  .opt[aria-pressed="true"] .lvname{color:var(--series-1)}
+
+  /* ---------- results ---------- */
+  .results{background:var(--card);border:1px solid var(--border);border-radius:16px;
+    box-shadow:var(--shadow);overflow:hidden;margin-top:8px}
+  .rtop{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0}
+  @media(max-width:860px){.rtop{grid-template-columns:1fr}}
+  .rpanel{padding:26px;min-width:0}
+  .rpanel+.rpanel{border-left:1px solid var(--border)}
+  @media(max-width:860px){.rpanel+.rpanel{border-left:none;border-top:1px solid var(--border)}}
+  .figtitle{font-size:15px;font-weight:650;margin:0 0 2px}
+  .figsub{font-size:13px;color:var(--muted);margin:0 0 16px}
+
+  .hero-n{display:flex;align-items:baseline;gap:10px;margin:0 0 2px}
+  .hero-n .v{font-size:64px;font-weight:700;letter-spacing:-.03em;line-height:1}
+  .hero-n .d{font-size:20px;color:var(--muted);font-weight:500}
+  .tier{font-size:22px;font-weight:680;letter-spacing:-.01em;margin:14px 0 4px}
+  .tierdesc{font-size:14.5px;line-height:1.55;color:var(--ink-2);margin:0}
+  .shapebox{margin-top:20px;padding-top:18px;border-top:1px solid var(--border)}
+  .shapelbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 6px}
+  .shapev{font-size:17px;font-weight:650;margin:0 0 5px;display:flex;align-items:center;gap:8px}
+  .shapev .ic{width:9px;height:9px;border-radius:2px;flex:none}
+  .shapetx{font-size:14px;line-height:1.5;color:var(--ink-2);margin:0}
+
+  svg{display:block;overflow:visible}
+  .axlabel{font-size:10.5px;fill:var(--ink-2);font-weight:600}
+  .axsub{font-size:9.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
+  .ring{fill:none;stroke:var(--grid);stroke-width:1}
+  .ring.outer{stroke:var(--axis)}
+  .spoke{stroke:var(--grid);stroke-width:1}
+  .poly{fill:var(--series-1-soft);stroke:var(--series-1);stroke-width:2;stroke-linejoin:round}
+  .pt{fill:var(--series-1);stroke:var(--surface-1);stroke-width:2}
+  .hit{fill:transparent;cursor:pointer}
+
+  .barrow{display:grid;grid-template-columns:150px 1fr 26px;gap:12px;align-items:center;margin-bottom:9px}
+  .barlbl{font-size:12.5px;color:var(--ink-2);text-align:right;line-height:1.25}
+  .bartrack{height:16px;background:var(--chip);border-radius:4px;position:relative;overflow:hidden}
+  .barfill{height:100%;background:var(--series-1);border-radius:0 4px 4px 0;
+    box-shadow:0 0 0 2px var(--card);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+  .barval{font-size:13px;font-weight:650;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .barrow.focus .barlbl{color:var(--ink);font-weight:650}
+  .focusflag{display:inline-block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+    font-weight:700;color:var(--crit);margin-left:6px;vertical-align:1px}
+
+  /* ---------- plan ---------- */
+  .plan{border-top:1px solid var(--border);padding:26px}
+  .planhead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+  .planttl{font-size:20px;font-weight:680;letter-spacing:-.01em;margin:0}
+  .plansub{font-size:14px;color:var(--ink-2);margin:0 0 20px;max-width:70ch}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.pgrid{grid-template-columns:1fr}}
+  .pcard{border:1px solid var(--border);border-radius:12px;padding:18px;background:var(--surface-1)}
+  .pcard .rank{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--crit);margin-bottom:7px}
+  .pcard h4{margin:0 0 3px;font-size:17px;font-weight:670}
+  .pmove{font-size:13px;color:var(--series-1);font-weight:650;margin:0 0 13px;font-variant-numeric:tabular-nums}
+  .pcard ol{margin:0;padding-left:20px}
+  .pcard li{font-size:14px;line-height:1.55;color:var(--ink-2);margin-bottom:9px}
+  .pcard li::marker{color:var(--series-1);font-weight:700}
+  .pcard li:last-child{margin-bottom:0}
+  .commit{margin-top:18px;border:1px dashed var(--axis);border-radius:12px;padding:16px 18px;background:transparent}
+  .commit p{margin:0 0 10px;font-size:13.5px;color:var(--ink-2)}
+  .commit .line{border-bottom:1px solid var(--axis);height:26px;margin-bottom:8px}
+  .commit .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+  .empty{padding:40px 26px;text-align:center;color:var(--muted);font-size:15px}
+
+  /* ---------- comparison ---------- */
+  .polybase{fill:none;stroke:var(--axis);stroke-width:2;stroke-dasharray:4 4;stroke-linejoin:round}
+  .legend{display:flex;gap:18px;justify-content:center;margin-top:10px;font-size:12px;color:var(--ink-2)}
+  .legend .lg{display:flex;align-items:center;gap:6px}
+  .legend .sw{width:16px;height:0;border-top-width:2px;border-top-style:solid;flex:none}
+  .legend .sw.cur{border-color:var(--series-1)}
+  .legend .sw.base{border-color:var(--axis);border-top-style:dashed}
+  .barrow.cmp{grid-template-columns:150px 1fr 26px 30px}
+  .delta{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;display:inline-flex;
+    align-items:center;gap:3px;color:var(--muted)}
+  .delta.up{color:var(--good)} .delta.up:before{content:"▲";font-size:8px}
+  .delta.down{color:var(--crit)} .delta.down:before{content:"▼";font-size:8px}
+
+  /* ---------- submit / keep ---------- */
+  .submitbox,.keepbox{margin-top:18px;border:1px solid var(--border);border-radius:12px;padding:18px;background:var(--surface-1)}
+  .submitbox{border-color:var(--series-1)}
+  .subttl{font-size:15px;font-weight:660;margin:0 0 5px}
+  .subtx{font-size:13.5px;line-height:1.5;color:var(--ink-2);margin:0 0 14px;max-width:72ch}
+  .subhint{font-size:12.5px;color:var(--muted);margin:11px 0 0;max-width:72ch}
+  .subrow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+  @media(max-width:600px){.subrow{grid-template-columns:1fr}}
+  .fld{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:9px;
+    background:var(--card);color:var(--ink);font:inherit;font-size:14px}
+  .fld::placeholder{color:var(--muted)}
+  .fld:focus{outline:2px solid var(--series-1);outline-offset:-1px;border-color:transparent}
+  .subrow2{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px}
+  .submsg{font-size:13px;color:var(--ink-2)}
+  .submsg.ok{color:var(--good);font-weight:600}
+  .submsg.warn{color:var(--crit);font-weight:600}
+
+  /* ---------- table ---------- */
+  details.tbl{margin-top:20px;border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:hidden}
+  details.tbl summary{padding:13px 18px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--ink-2);list-style:none}
+  details.tbl summary::-webkit-details-marker{display:none}
+  details.tbl summary:before{content:"▸ ";color:var(--muted)}
+  details.tbl[open] summary:before{content:"▾ "}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:9px 18px;border-top:1px solid var(--border)}
+  th{color:var(--muted);font-weight:650;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+  td.n{font-variant-numeric:tabular-nums;font-weight:650;text-align:right;width:60px}
+
+  /* ---------- toolbar ---------- */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 0}
+  button.act{background:var(--series-1);color:#fff;border:none;border-radius:9px;
+    padding:11px 18px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  button.act.ghost{background:transparent;color:var(--ink-2);border:1px solid var(--border)}
+  button.act:hover{filter:brightness(1.06)}
+  button.act.ghost:hover{background:var(--chip);color:var(--ink)}
+
+  #tip{position:fixed;pointer-events:none;opacity:0;transition:opacity .1s;z-index:50;
+    background:var(--ink);color:var(--page);padding:7px 11px;border-radius:7px;font-size:12.5px;
+    line-height:1.4;box-shadow:var(--shadow);max-width:220px}
+  #tip b{color:var(--page)}
+
+  footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--border);
+    font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+  @media print{
+    body{background:#fff}
+    .themetoggle,.toolbar,.opt:not([aria-pressed="true"]){display:none}
+    .domain{break-inside:avoid;box-shadow:none}
+    .pcard,.results{break-inside:avoid}
+    header.hero{padding-top:0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <button class="themetoggle" id="themeBtn">Dark</button>
+  <p class="eyebrow">The Airway Dentists · 90-Day Development Review</p>
+  <h1>The Full Stack Dentist<br><span class="thin">Scorecard</span></h1>
+  <p class="lede">You were hired for one thing and you're measured on one thing: what you produce with your hands. That's the ceiling. The practices that grow extraordinarily aren't built by the best clinician in the building — they're built by the dentist who is <strong>round instead of spiky</strong>. Six domains. Score yourself honestly. Your number is not the point; <strong>your shape is</strong>.</p>
+</header>
+
+<section>
+  <h2>The Ladder</h2>
+  <p class="sectionsub">The same five levels apply to every domain. They aren't about how hard you work — they're about how far the thing you're good at travels beyond your own hands.</p>
+  <div class="ladder" id="ladder"></div>
+  <p class="plateauNote"><b>Level 3 is the plateau.</b> A dentist who is a 3 across the board is a genuinely good associate — and will stay an associate. Every meaningful jump in a practice's growth comes from someone crossing 3 → 4 in a domain that isn't clinical.</p>
+</section>
+
+<section>
+  <h2>Score Yourself</h2>
+  <p class="basenote" id="baseNote" hidden></p>
+  <p class="sectionsub">Pick the description that's true today — not the one that's true on your best day, and not the one you're working toward. Scoring generously is the fastest way to make this worthless.</p>
+  <div id="domains"></div>
+</section>
+
+<section>
+  <h2>Your Shape</h2>
+  <div class="results" id="results"></div>
+  <details class="tbl" id="tblWrap" hidden>
+    <summary>View as table</summary>
+    <table><thead><tr><th>Domain</th><th>Level</th><th class="n">Score</th></tr></thead><tbody id="tblBody"></tbody></table>
+  </details>
+  <div class="toolbar">
+    <button class="act" onclick="window.print()">Print / Save as PDF</button>
+    <button class="act ghost" id="resetBtn">Reset</button>
+  </div>
+</section>
+
+<footer>
+  <span>The Full Stack Dentist Scorecard · The Airway Dentists</span>
+  <span>Foundation first, teeth second.</span>
+</footer>
+</div>
+<div id="tip"></div>
+
+<script>
+// Full Stack Dentist Scorecard — domain data
+const LADDER = [
+  { n: 1, name: "Dependent",   blurb: "Someone else owns the outcome." },
+  { n: 2, name: "Capable",     blurb: "You can do it when asked." },
+  { n: 3, name: "Independent", blurb: "You own it end to end. Most good associates stop here." },
+  { n: 4, name: "Multiplier",  blurb: "You make other people better at it." },
+  { n: 5, name: "Architect",   blurb: "You built the system. It survives without you." }
+];
+
+const DOMAINS = [
+  {
+    id: "clinical",
+    short: "Clinical Range",
+    axis: "Clinical\nRange",
+    principle: "Airway First, Alignment Second.",
+    question: "What can your hands actually start and finish?",
+    levels: [
+      "You treat within general dentistry and refer anything orthodontic. Growth cases and adult expansion go out the door. You take whatever setup the aligner company's treatment planners send back.",
+      "You run clear aligner cases confidently — mild to moderate crowding, straightforward finishes. You're still following a manufacturer's plan rather than writing your own. Pediatric growth guidance and adult expansion are still referrals.",
+      "You treat pediatric guided-growth and expansion cases start to finish, and you write your own aligner prescriptions instead of accepting the default setup. You've begun adult expansion with DNA/mRNA appliances and you finish the ones you start.",
+      "Adult expansion with DNA/mRNA is routine. You know which case needs the arch developed before a single tray goes in, you sequence expansion against aligners deliberately, and you manage the ones that don't track. Other doctors hand you their stuck cases.",
+      "You set the orthodontic standard of care for the practice — who gets guided growth, who gets DNA/mRNA, who gets aligners alone, and in what order. You bring new appliance systems online and you teach them."
+    ],
+    actions: [
+      ["Take ten straightforward aligner cases you would normally refer, and run them yourself.","Stop accepting the default setup — mark up one treatment plan per case with what you actually want.","Shadow a senior doctor on four guided-growth cases before you take your own."],
+      ["Commit to a real DNA/mRNA certification pathway, not a weekend overview.","Start five pediatric guided-growth cases and photograph every single visit.","Write your own aligner prescriptions for a month. No default plans accepted."],
+      ["Take one adult expansion case a month that's harder than your last one, with a mentor on call.","Run a monthly case review where you present the expansion that didn't track, not the one that did.","Say yes to the first case another doctor tries to hand up to you."],
+      ["Write the practice's sequencing protocol: who gets expansion first, who gets aligners alone, when they overlap.","Run a quarterly calibration on adult expansion cases with the whole doctor group.","Own the decision on the next appliance system, start to finish."],
+      ["Teach it outside the practice — study club, CE, or a course module.","Build the pathway so a new associate can reach DNA/mRNA competence in 18 months.","Pick the capability the practice doesn't have yet and go get it."]
+    ]
+  },
+  {
+    id: "sight",
+    short: "Diagnostic Sight",
+    axis: "Diagnostic\nSight",
+    principle: "Cause First, Symptom Second.",
+    question: "What do you actually see when you look at a patient?",
+    levels: [
+      "You diagnose the chief complaint and read teeth in isolation. Crowding looks like a spacing problem rather than evidence that an arch never finished developing. Airway, growth, and tongue space go unnoticed.",
+      "You run the checklist when prompted. The crowding gets recorded and the CBCT gets taken, but the findings don't yet assemble into a growth story or a treatment sequence.",
+      "Every patient, every time. You read arch form, transverse deficiency, tongue space, growth pattern, and airway together — and you can tell a developmental problem from an alignment problem before you pick an appliance.",
+      "Your assistants flag the narrow arch, the scalloped tongue, the mouth breather, and the tonsil grade before you sit down, because you trained them to. You calibrate the other doctors so a case gets the same read whoever sees it.",
+      "You own the diagnostic system — intake, photo and CBCT protocol, sleep-testing pathway, referral criteria. Diagnostic yield is a number you measure and move."
+    ],
+    actions: [
+      ["Add three airway questions to your exam and ask them out loud on every patient for 30 days.","Learn the craniofacial growth timeline cold: 55% by age 2, 75% by age 4, 95% by age 12.","Measure intercanine and intermolar width on ten patients. Look at them all together at the end of the week."],
+      ["On every crowded case, ask out loud whether the teeth are too big or the arch is too small.","Pull five ortho consults from last month and re-read them for the growth finding you missed.","Present one sequenced developmental plan a week instead of a list of crooked teeth."],
+      ["Write the assistant's airway and arch-form flag list and hand it to every DA.","Set a five-minute huddle before each session on which patients have growth findings.","Track your own screening rate for 90 days and post it where the team can see it."],
+      ["Run a monthly calibration: same three cases, all doctors, compare diagnoses and sequences.","Write the referral criteria — treat in-house / co-manage / refer — and make it the practice's.","Own the CBCT and sleep-test ordering protocol end to end."],
+      ["Set a diagnostic-yield target for the practice and report against it quarterly.","Build the intake and records protocol the whole group uses.","Publish or teach the system — that's the pressure test."]
+    ]
+  },
+  {
+    id: "conversation",
+    short: "The Conversation",
+    axis: "The\nConversation",
+    principle: "Empathy First, Technique Second.",
+    question: "Can you turn a diagnosis they didn't come in for into treatment they want?",
+    levels: [
+      "You present findings clinically and hope. The treatment coordinator closes it, or nobody does. A five-figure ortho fee is uncomfortable to say out loud.",
+      "You can explain aligners to an adult who already wants straighter teeth. A parent asking \"can't we just wait until all the adult teeth are in?\" usually ends the conversation.",
+      "You connect every finding to something they already live with — the snoring, the headaches, the kid who can't sleep or sit still. You present full developmental treatment and full fees without flinching, and you have a prepared answer for the eight objections, starting with why this can't wait.",
+      "The consult is a team performance you direct: the assistant has already planted the finding, the coordinator has financing ready, hygiene reinforces it at recall. You coach other doctors' presentations and you debrief the misses.",
+      "You built the consult framework, the objection playbook, and the fee and financing structure for ortho and airway cases. Case acceptance is a tracked number that improves for everyone, not just you."
+    ],
+    actions: [
+      ["Write out the eight objections you hear most — start with \"can't we just wait?\" — and a two-sentence answer for each.","Say the full ortho fee out loud, then stop talking. Practice the silence.","Sit in on five consults run by the strongest closer you can get to."],
+      ["Open every consult with what they came in living with, not with what you found on the scan.","Record (with consent) three of your own ortho consults and watch them back.","Ask one \"why does that matter to you\" question before you present anything."],
+      ["Debrief every no within 24 hours: what was the real objection?","Give your assistant one line to plant before you walk in, and hold them to it.","Track your own case acceptance weekly for a quarter."],
+      ["Run a monthly consult clinic — role-play, real objections, real feedback.","Write the practice's objection playbook and put it into DA onboarding.","Own the financing structure so a case doesn't stall when you're not in the room."],
+      ["Set a practice-wide case acceptance target and own the number.","Rebuild the framework once a year against whatever actually stopped working.","Teach the framework outside the practice."]
+    ]
+  },
+  {
+    id: "team",
+    short: "Team Multiplication",
+    axis: "Team\nMultiplication",
+    principle: "Team First, Task Second.",
+    question: "Are your assistants extensions of you, or just people who hand you things?",
+    levels: [
+      "You work around your assistant. You do things any trained DA could do — records, scans, seating, tray checks — because it's faster than explaining. Frustration shows up as re-doing their work in silence.",
+      "Your DA handles routine tasks well: scans, photos, seating, chairside support. You answer questions when asked, but you aren't building anyone on purpose. If your regular assistant is out, the day falls apart.",
+      "You train your DAs deliberately — records, scans, appliance deliveries, activations, tray checks, what to flag on the airway list, and the exact words to use with a parent. They are extensions of you: the appointment starts before you walk in and continues after you leave.",
+      "Your assistants run whole segments of a case without you standing there — progress checks, deliveries, activations, patient education — within the scope your state allows. The DAs you developed can train the next ones, so your capacity no longer depends on your own presence.",
+      "You own clinical onboarding and career pathing for assistants. A new DA reaches real competence in weeks, not quarters. Retention is a number you're accountable for, and the practice can add a column because the people exist to staff it."
+    ],
+    actions: [
+      ["List every task you did last week that a trained DA could have done. Give away three.","Ask your assistant what slows them down at the chair, then fix one thing this week.","Stop silently re-doing their work — teach the correction out loud, the first time."],
+      ["Block 15 minutes a week to teach your DA one thing. Put it on the schedule so it survives a busy day.","Write down the exact verbiage you want used with parents and hand it over.","Let your DA run records and the scan start to finish without you watching."],
+      ["Build a one-page competency checklist per DA role — records, deliveries, activations, tray checks.","Teach a 30-minute session to the whole clinical team once a month.","Develop one assistant to the point they can train the next hire."],
+      ["Own clinical onboarding for the next DA, start to finish.","Write the career ladder: what does an assistant do here to earn the next step?","Name a successor for every clinical role you currently rely on."],
+      ["Report DA retention and time-to-competence quarterly.","Recruit before the seat is empty, not after.","Rebuild onboarding once a year from wherever new DAs actually struggle."]
+    ]
+  },
+  {
+    id: "demand",
+    short: "Demand Creation",
+    axis: "Demand\nCreation",
+    principle: "Their breath. Your better practice.",
+    question: "Do new patients arrive because of you?",
+    levels: [
+      "You see whoever the schedule sends. You have no visibility outside the operatory.",
+      "You ask for reviews and referrals when it's easy. You participate in practice marketing when someone asks you to.",
+      "You generate measurable internal demand — reactivation, unscheduled treatment, and the siblings and parents you converted off your own pediatric cases. You're present and useful on the practice's channels.",
+      "You create outbound demand: lunch-and-learns, parent education nights, provider outreach. You have a real referral network — pediatricians, ENTs, sleep physicians, myofunctional therapists — that sends in both directions.",
+      "You own a channel that produces predictable new-patient flow — speaking, content, or a referral program that runs as a system. The schedule would feel it if you stopped."
+    ],
+    actions: [
+      ["Ask every happy parent for a review by name, for 30 days straight.","Sit in on one marketing meeting and find out where your ortho patients actually come from.","Put your face and your story on the practice website."],
+      ["Screen the siblings and the parents of every pediatric case you start.","Publish one useful thing a month — post, video, or email — in your own voice.","Ask three parents who referred someone what made them do it."],
+      ["Book one lunch-and-learn with a pediatrician, ENT, or sleep physician this quarter.","Host one parent education night. Twelve families is enough.","Write the referral letter that makes a physician want to send back."],
+      ["Build the provider list — 20 names — and work it on a schedule, not on impulse.","Track referrals in and out by source. Make it a monthly number.","Say yes to one speaking slot outside the practice."],
+      ["Turn your best channel into a documented program someone else can run.","Set a new-patient target you personally own and report it.","Build the community-education calendar for the year."]
+    ]
+  },
+  {
+    id: "leadership",
+    short: "Leadership",
+    axis: "Leadership",
+    principle: "Why First, What Second.",
+    question: "You are the most senior person in the building. What happens because of that?",
+    levels: [
+      "You do the job in front of you. Problems get queued for someone above you — and since nobody above you is in the building, they mostly just sit. Culture is something that happens to you.",
+      "You're reliable, positive, and you follow through. You surface issues clearly instead of letting them fester, but you're still asking rather than deciding.",
+      "You own outcomes, not tasks. The unhappy parent, the case that isn't tracking, the team conflict at two o'clock on a Thursday — you handle it and then report it. The standard doesn't move on the days nobody would ever know, which is every day.",
+      "People follow your standard voluntarily. The team comes to you first by choice, not by org chart. You mentor newer doctors, and your learning velocity is visible — you bring something back from every course and it actually lands.",
+      "You carry the vision without needing it re-explained. You recruit, you set culture, and you make the call the way the founders would make it. This is the capability that makes a multi-location practice possible at all."
+    ],
+    actions: [
+      ["Handle the next unhappy parent yourself, all the way to resolution.","Pick one category of problem you currently queue and start deciding it the same day.","Choose one standard you'll hold on a day nobody would ever find out. Hold it."],
+      ["Have the hard conversation you've been avoiding this month.","Take one practice-wide problem end to end and come back with the outcome, not the question.","Ask three people for direct feedback and don't defend a single point of it."],
+      ["Mentor one person deliberately for a quarter, with a goal you both said out loud.","Bring back one implementable thing from every course and land it within 30 days.","Take the lead on the next hire — screening, interviews, and the call."],
+      ["Write down what you believe this practice is for. Say it to the team in your own words.","Recruit someone who is better than you at something.","Ask for the leadership conversation with a plan attached, not a request."],
+      ["Build the next leader. That's the only level-5 evidence that holds.","Set the three-year vision for your location and get the group to buy it.","Make the call the founders would have made — before anyone asks you to."]
+    ]
+  }
+];
+
+
+const TIERS = [
+  { min:6,  max:12, name:"Apprentice",   desc:"You are practicing dentistry inside somebody else's system. Everything here is learnable, and the fastest gains are not in your hands — they're in your eyes and your mouth: what you see, and what you say about it." },
+  { min:13, max:18, name:"Producer",     desc:"You're a solid clinical operator and the schedule is safe with you. Your growth is capped by your own two hands, which means the practice's growth is capped by how many hours you're willing to work." },
+  { min:19, max:23, name:"Multiplier",   desc:"The practice grows faster because you're in it, and not only on the days you produce. You're making other people better. Protect this — it's the rarest thing in dentistry and the hardest to hire for." },
+  { min:24, max:27, name:"Partner-Track",desc:"You're building the system, not just working in it. At this level the conversation stops being about your schedule and your comp and starts being about the direction of the practice — and you should be the one to open it." },
+  { min:28, max:30, name:"Architect",    desc:"You should be running something. If the practice you're in can't offer you a path to that, the market will, and that is a worse outcome for everyone than the conversation you've been putting off." }
+];
+
+const SHAPES = [
+  { max:1, name:"Round", color:"var(--good)", tx:"Balanced. Nothing is dragging you down, so the move is to pick two domains and drive them a full level rather than nudging all seven." },
+  { max:2, name:"Tilted", color:"var(--warn)", tx:"One clear strength and one clear gap. This is the most common profile in a growing associate and the easiest to fix — the gap is usually a habit, not a talent." },
+  { max:9, name:"Spiky", color:"var(--crit)", tx:"You're being paid for one thing and it's carrying you. This is the classic associate profile and it is a hard ceiling: a practice cannot grow past the narrowest dimension of the person actually running it day to day — and in your building, that's you." }
+];
+
+/* ============ deployment config ============ */
+const CONFIG = {
+  mode: "review",          // "anonymous" | "review"
+  submitEndpoint: "https://script.google.com/macros/s/AKfycbyU1o2v08uinEXn0TTPYU96EBIDjDIarJwmqoGP_xEuHYYNC59SsvfmMIxRpcM42YcOag/exec",        // paste your Google Apps Script /exec URL here
+  submitEmail: "kyle@theairwaydentists.com"   // mailto fallback when no endpoint is set
+};
+
+const state = {};
+const $ = s => document.querySelector(s);
+
+/* ============ storage (guarded — degrades to URL-only) ============ */
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e) { return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e) { return false; } }
+};
+
+/* ============ URL score encoding ============ */
+// one digit per domain, in DOMAINS order.  #s=433221  current   b=222111  baseline
+const encode = o => DOMAINS.every(d=>o[d.id]) ? DOMAINS.map(d=>o[d.id]).join('') : '';
+const decode = str => {
+  if(!str || !/^[1-5]+$/.test(str) || str.length !== DOMAINS.length) return null;
+  const o = {}; DOMAINS.forEach((d,i)=> o[d.id] = +str[i]); return o;
+};
+const hashParams = () => new URLSearchParams(location.hash.replace(/^#/,''));
+
+let baseline = null, baselineDate = null, savedThisVisit = false;
+(function initFromUrl(){
+  const p = hashParams();
+  const b = decode(p.get('b'));
+  if(b){ baseline = b; baselineDate = p.get('bd') || null; }
+  else {
+    try {
+      const raw = store.get('fsd:last');
+      if(raw){ const j = JSON.parse(raw); const d = decode(j.s); if(d){ baseline = d; baselineDate = j.d || null; } }
+    } catch(e){}
+  }
+  const s = decode(p.get('s'));
+  if(s) Object.assign(state, s);
+})();
+
+function syncUrl(){
+  const cur = encode(state);
+  const p = new URLSearchParams();
+  if(cur) p.set('s', cur);
+  const bp = hashParams().get('b');
+  if(bp) { p.set('b', bp); const bd = hashParams().get('bd'); if(bd) p.set('bd', bd); }
+  history.replaceState(null,'', location.pathname + location.search + (p.toString()? '#'+p : ''));
+}
+const today = () => new Date().toISOString().slice(0,10);
+async function copy(text, btn){
+  try { await navigator.clipboard.writeText(text); }
+  catch(e){ const t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select();
+            try{document.execCommand('copy');}catch(_){} t.remove(); }
+  if(btn){ const o=btn.textContent; btn.textContent='Copied'; setTimeout(()=>btn.textContent=o,1600); }
+}
+
+/* ---------- render ladder ---------- */
+$('#ladder').innerHTML = LADDER.map(l =>
+  `<div class="rung${l.n===3?' plateau':''}">
+     <div class="num">LEVEL ${l.n}</div>
+     <div class="nm">${l.name}</div>
+     <div class="bl">${l.blurb}</div>
+   </div>`).join('');
+
+/* ---------- render domains ---------- */
+$('#domains').innerHTML = DOMAINS.map((d,di) => `
+  <div class="domain">
+    <div class="dhead">
+      <span class="dnum">${String(di+1).padStart(2,'0')}</span>
+      <h3 class="dname">${d.short}</h3>
+      <span class="dprin">${d.principle}</span>
+    </div>
+    <p class="dq">${d.question}</p>
+    <div class="opts" role="group" aria-label="${d.short}">
+      ${d.levels.map((tx,i)=>`
+        <button class="opt" type="button" aria-pressed="false" data-d="${d.id}" data-v="${i+1}">
+          <span class="lv">${i+1}</span>
+          <span class="tx"><span class="lvname">${LADDER[i].name}</span>${tx}</span>
+        </button>`).join('')}
+    </div>
+  </div>`).join('');
+
+document.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => {
+  const d = b.dataset.d, v = +b.dataset.v;
+  state[d] = (state[d] === v) ? undefined : v;
+  if (state[d] === undefined) delete state[d];
+  document.querySelectorAll(`.opt[data-d="${d}"]`).forEach(o =>
+    o.setAttribute('aria-pressed', String(+o.dataset.v === state[d])));
+  render();
+}));
+
+/* ---------- radar ---------- */
+function radar(vals, base){
+  const S=380, C=S/2, R=118, N=DOMAINS.length;
+  const ang = i => -Math.PI/2 + i*2*Math.PI/N;
+  const pt = (i,v) => [C + Math.cos(ang(i))*R*(v/5), C + Math.sin(ang(i))*R*(v/5)];
+  let g='';
+  for(let r=1;r<=5;r++){
+    const p = Array.from({length:N},(_,i)=>pt(i,r).join(',')).join(' ');
+    g += `<polygon class="ring${r===5?' outer':''}" points="${p}"/>`;
+  }
+  for(let i=0;i<N;i++){ const [x,y]=pt(i,5); g+=`<line class="spoke" x1="${C}" y1="${C}" x2="${x}" y2="${y}"/>`; }
+
+  const showBase = base && DOMAINS.every(d=>base[d.id]);
+  if(showBase){
+    const p = DOMAINS.map((d,i)=>pt(i,base[d.id]).join(',')).join(' ');
+    g += `<polygon class="polybase" points="${p}"/>`;
+  }
+
+  const filled = DOMAINS.every(d=>vals[d.id]);
+  if(filled){
+    const p = DOMAINS.map((d,i)=>pt(i,vals[d.id]).join(',')).join(' ');
+    g += `<polygon class="poly" points="${p}"/>`;
+    DOMAINS.forEach((d,i)=>{ const [x,y]=pt(i,vals[d.id]); g+=`<circle class="pt" cx="${x}" cy="${y}" r="4.5"/>`; });
+  }
+
+  // labels
+  DOMAINS.forEach((d,i)=>{
+    const a=ang(i), lr=R+30, x=C+Math.cos(a)*lr, y=C+Math.sin(a)*lr;
+    const anchor = Math.abs(Math.cos(a))<0.25 ? 'middle' : (Math.cos(a)>0?'start':'end');
+    const lines = d.axis.split('\n');
+    const dy0 = -( (lines.length-1) * 5.5 );
+    g += lines.map((ln,k)=>`<text class="axlabel" x="${x}" y="${y+dy0+k*12}" text-anchor="${anchor}" dominant-baseline="middle">${ln}</text>`).join('');
+    if(vals[d.id]) g += `<text class="axsub" x="${x}" y="${y+dy0+lines.length*12}" text-anchor="${anchor}" dominant-baseline="middle">${vals[d.id]}</text>`;
+    const [hx,hy]=pt(i, vals[d.id]||5);
+    const dtx = vals[d.id] ? LADDER[vals[d.id]-1].name+' · '+vals[d.id]+' of 5'+(showBase?' (was '+base[d.id]+')':'') : 'not scored';
+    g += `<circle class="hit" cx="${hx}" cy="${hy}" r="14" data-tip="${d.short}|${dtx}"/>`;
+  });
+  const svg = `<svg viewBox="0 0 ${S} ${S}" width="100%" style="max-width:400px;margin:0 auto" role="img" aria-label="Radar chart of ${N} domain scores">${g}</svg>`;
+  const legend = showBase ? `<div class="legend">
+      <span class="lg"><span class="sw cur"></span>Today</span>
+      <span class="lg"><span class="sw base"></span>Previous${baselineDate?' · '+baselineDate:''}</span>
+    </div>` : '';
+  return svg + legend;
+}
+
+/* ---------- render results ---------- */
+function render(){
+  const done = DOMAINS.filter(d=>state[d.id]).length;
+  const R = $('#results');
+
+  if(done < DOMAINS.length){
+    R.innerHTML = `<div class="empty">Score all six domains to see your shape.<br>
+      <strong style="color:var(--ink)">${done} of ${DOMAINS.length}</strong> complete.</div>`;
+    $('#tblWrap').hidden = true;
+    return;
+  }
+  $('#tblWrap').hidden = false;
+
+  const total = DOMAINS.reduce((s,d)=>s+state[d.id],0);
+  const tier  = TIERS.find(t=>total>=t.min && total<=t.max);
+  const scores= DOMAINS.map(d=>state[d.id]);
+  const spread= Math.max(...scores)-Math.min(...scores);
+  const shape = SHAPES.find(s=>spread<=s.max);
+  const nextTier = TIERS[TIERS.indexOf(tier)+1];
+
+  const sorted = [...DOMAINS].sort((a,b)=> state[a.id]-state[b.id] || DOMAINS.indexOf(a)-DOMAINS.indexOf(b));
+  const focus  = sorted.slice(0,2);
+  const focusIds = new Set(focus.map(d=>d.id));
+
+  const hasBase = baseline && DOMAINS.every(d=>baseline[d.id]);
+  const baseTotal = hasBase ? DOMAINS.reduce((s,d)=>s+baseline[d.id],0) : null;
+
+  const bars = [...DOMAINS].sort((a,b)=>state[b.id]-state[a.id]).map(d=>{
+    const v=state[d.id], f=focusIds.has(d.id);
+    const dv = hasBase ? v - baseline[d.id] : 0;
+    const chip = hasBase
+      ? `<span class="delta ${dv>0?'up':dv<0?'down':'flat'}">${dv>0?'+'+dv:dv<0?dv:'—'}</span>` : '';
+    return `<div class="barrow${f?' focus':''}${hasBase?' cmp':''}">
+      <div class="barlbl">${d.short}${f?'<span class="focusflag">focus</span>':''}</div>
+      <div class="bartrack" data-tip="${d.short}|${LADDER[v-1].name} · ${v} of 5${hasBase?' (was '+baseline[d.id]+')':''}">
+        <div class="barfill" style="width:${v/5*100}%"></div></div>
+      <div class="barval">${v}</div>${chip}</div>`;
+  }).join('');
+
+  let cmpBox = '';
+  if(hasBase){
+    const dt = total - baseTotal;
+    const bScores = DOMAINS.map(d=>baseline[d.id]);
+    const bSpread = Math.max(...bScores)-Math.min(...bScores);
+    const rounder = spread - bSpread;
+    const moved = DOMAINS.filter(d=>state[d.id]>baseline[d.id]).length;
+    cmpBox = `<div class="shapebox">
+      <p class="shapelbl">Since last time${baselineDate?' · '+baselineDate:''}</p>
+      <p class="shapev"><span class="delta ${dt>0?'up':dt<0?'down':'flat'}" style="font-size:15px">${dt>0?'+'+dt:dt<0?dt:'±0'}</span>
+        <span style="font-weight:650">${baseTotal} → ${total}</span></p>
+      <p class="shapetx">${
+        dt>0 ? `You moved ${moved} domain${moved===1?'':'s'}. ${rounder<0
+                 ? 'And you got rounder — the gap between your best and worst narrowed, which is the harder and more valuable win.'
+                 : rounder>0
+                   ? 'But you got spikier — you grew where you were already strong. The next quarter should go to the bottom two.'
+                   : 'Your shape held. Keep pushing the bottom two rather than the top.'}`
+        : dt<0 ? 'The number went down. Either the last score was generous or something slipped — both are worth naming out loud rather than re-scoring until it looks better.'
+               : 'Same total. If the quarter felt busy, that is the finding: activity that does not move a level is not development.'
+      }</p>
+    </div>`;
+  }
+
+  const plan = focus.map((d,i)=>{
+    const v = state[d.id];
+    const top = v===5;
+    const acts = d.actions[v-1];
+    return `<div class="pcard">
+      <div class="rank">${i===0?'Lowest domain':'Second lowest'}</div>
+      <h4>${d.short}</h4>
+      <p class="pmove">${top?'Level 5 — hold it and hand it off':'Level '+v+' → Level '+(v+1)+' · '+LADDER[v-1].name+' → '+LADDER[v].name}</p>
+      <ol>${acts.map(a=>`<li>${a}</li>`).join('')}</ol>
+    </div>`;
+  }).join('');
+
+  R.innerHTML = `
+    <div class="rtop">
+      <div class="rpanel">
+        <p class="figtitle">Total score</p>
+        <p class="figsub">Six domains, five levels each</p>
+        <div class="hero-n"><span class="v">${total}</span><span class="d">/ ${DOMAINS.length*5}</span></div>
+        <div class="tier">${tier.name}</div>
+        <p class="tierdesc">${tier.desc}</p>
+        ${cmpBox}
+        <div class="shapebox">
+          <p class="shapelbl">Shape</p>
+          <p class="shapev"><span class="ic" style="background:${shape.color}"></span>${shape.name} <span style="color:var(--muted);font-weight:500;font-size:14px">· spread of ${spread}</span></p>
+          <p class="shapetx">${shape.tx}</p>
+        </div>
+        <div class="shapebox">
+          <p class="shapelbl">Your ceiling</p>
+          <p class="shapev">${focus[0].short} <span style="color:var(--muted);font-weight:500;font-size:14px">· level ${state[focus[0].id]}</span></p>
+          <p class="shapetx">This is the number the practice actually runs on. Every level you've earned above it is capacity the practice can't spend yet.</p>
+        </div>
+        <div class="shapebox">
+          <p class="shapelbl">Next tier</p>
+          ${nextTier
+            ? `<p class="shapev">${nextTier.min-total} point${nextTier.min-total===1?'':'s'} to ${nextTier.name}</p>
+               <p class="shapetx">One level in one domain may be all it takes — and it will be cheaper to earn in the two below than in the one you're already best at.</p>`
+            : `<p class="shapev">Top of the ladder</p>
+               <p class="shapetx">There is no higher score on this card. The next move isn't a level — it's an ownership conversation.</p>`}
+        </div>
+      </div>
+      <div class="rpanel">
+        <p class="figtitle">Where you are round, where you are thin</p>
+        <p class="figsub">Each spoke runs 0 at the center to 5 at the edge</p>
+        ${radar(state, hasBase ? baseline : null)}
+        <div style="margin-top:22px">${bars}</div>
+      </div>
+    </div>
+    <div class="plan">
+      <div class="planhead"><h3 class="planttl">Your next 90 days</h3></div>
+      <p class="plansub">Your score is your two lowest domains, not your average — a practice can't grow past its narrowest dimension. Do these six things in the next quarter and re-score.</p>
+      <div class="pgrid">${plan}</div>
+      <div class="commit">
+        <p><strong style="color:var(--ink)">Commit to one.</strong> Pick the single action you'll have done before this time next month, and write down who is going to ask you about it.</p>
+        <div class="lbl">The action</div><div class="line"></div>
+        <div class="lbl">Who holds me to it</div><div class="line"></div>
+        <div class="lbl">Date</div><div class="line"></div>
+      </div>
+      ${CONFIG.mode==='review' ? `
+      <div class="submitbox">
+        <p class="subttl">Send this to your development lead</p>
+        <p class="subtx">Your six scores, your tier, and your focus domains. Not a grade — the point is that somebody knows what you're working on, so the 90 days have a witness.</p>
+        <div class="subrow">
+          <input class="fld" id="subName" type="text" placeholder="Your name" autocomplete="name">
+          <input class="fld" id="subLoc" type="text" placeholder="Location / practice" autocomplete="organization">
+        </div>
+        <input class="fld" id="subAction" type="text" placeholder="The one action you're committing to (optional)">
+        <div class="subrow2">
+          <button class="act" id="subBtn">Send my results</button>
+          <span class="submsg" id="subMsg"></span>
+        </div>
+      </div>` : ''}
+      <div class="keepbox">
+        <p class="subttl">Keep this</p>
+        <p class="subtx">Nothing is saved on a server. Your scores live in the link itself — copy it and you can reopen this exact result on any device.</p>
+        <div class="subrow2">
+          <button class="act ghost" id="lnkNow">Copy my result link</button>
+          <button class="act ghost" id="lnk90">Copy my 90-day re-score link</button>
+        </div>
+        <p class="subhint">The re-score link opens a blank scorecard that remembers today's numbers, so when you fill it in again in 90 days it shows you exactly what moved.</p>
+      </div>
+    </div>`;
+
+  // remember this result on this device for the next visit
+  if(!savedThisVisit){
+    savedThisVisit = true;
+    store.set('fsd:last', JSON.stringify({ s: encode(state), d: today() }));
+  }
+  syncUrl();
+
+  const base = location.origin==='null' ? location.href.split('#')[0] : location.origin + location.pathname;
+  $('#lnkNow').onclick = e => copy(base + '#s=' + encode(state), e.currentTarget);
+  $('#lnk90').onclick  = e => copy(base + '#b=' + encode(state) + '&bd=' + today(), e.currentTarget);
+  if(CONFIG.mode==='review') wireSubmit(total, tier, focus);
+
+  $('#tblBody').innerHTML = DOMAINS.map(d=>
+    `<tr><td>${d.short}</td><td>${LADDER[state[d.id]-1].name}</td><td class="n">${state[d.id]}</td></tr>`
+  ).join('') + `<tr><td><strong>Total</strong></td><td>${tier.name}</td><td class="n"><strong>${total}</strong></td></tr>`;
+}
+
+/* ---------- submit (review mode) ---------- */
+function wireSubmit(total, tier, focus){
+  const btn=$('#subBtn'), msg=$('#subMsg');
+  btn.onclick = async () => {
+    const name=$('#subName').value.trim();
+    if(!name){ msg.textContent='Add your name first.'; msg.className='submsg warn'; $('#subName').focus(); return; }
+    const payload = {
+      date: today(), name,
+      location: $('#subLoc').value.trim(),
+      total, max: DOMAINS.length*5, tier: tier.name,
+      focus: focus.map(d=>d.short).join(' + '),
+      commitment: $('#subAction').value.trim(),
+      code: encode(state),
+      link: (location.origin==='null'?location.href.split('#')[0]:location.origin+location.pathname)+'#s='+encode(state)
+    };
+    DOMAINS.forEach(d => payload[d.short] = state[d.id]);
+
+    if(!CONFIG.submitEndpoint){
+      const body = Object.entries(payload).map(([k,v])=>`${k}: ${v}`).join('\n');
+      location.href = `mailto:${CONFIG.submitEmail}?subject=${encodeURIComponent('Full Stack Dentist Scorecard — '+name)}&body=${encodeURIComponent(body)}`;
+      msg.textContent='Opening your email…'; msg.className='submsg ok';
+      return;
+    }
+    btn.disabled=true; msg.textContent='Sending…'; msg.className='submsg';
+    try{
+      await fetch(CONFIG.submitEndpoint, {
+        method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      });
+      msg.textContent='Sent. Copy your 90-day link before you close this.'; msg.className='submsg ok';
+      btn.textContent='Sent';
+    }catch(err){
+      btn.disabled=false;
+      msg.textContent='Could not send — copy your result link instead.'; msg.className='submsg warn';
+    }
+  };
+}
+
+/* ---------- tooltip ---------- */
+const tip=$('#tip');
+document.addEventListener('mouseover',e=>{
+  const t=e.target.closest('[data-tip]'); if(!t) return;
+  const [a,b]=t.dataset.tip.split('|');
+  tip.innerHTML=`<b>${a}</b><br>${b}`; tip.style.opacity='1';
+});
+document.addEventListener('mousemove',e=>{
+  if(tip.style.opacity!=='1') return;
+  tip.style.left=Math.min(e.clientX+14, innerWidth-236)+'px';
+  tip.style.top=(e.clientY+18)+'px';
+});
+document.addEventListener('mouseout',e=>{ if(e.target.closest('[data-tip]')) tip.style.opacity='0'; });
+
+/* ---------- theme + reset ---------- */
+const tb=$('#themeBtn');
+if(matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.dataset.theme='dark';
+const syncBtn=()=>tb.textContent = document.documentElement.dataset.theme==='dark' ? 'Light' : 'Dark';
+syncBtn();
+tb.onclick=()=>{ document.documentElement.dataset.theme = document.documentElement.dataset.theme==='dark'?'light':'dark'; syncBtn(); render(); };
+$('#resetBtn').onclick=()=>{ DOMAINS.forEach(d=>delete state[d.id]);
+  document.querySelectorAll('.opt').forEach(o=>o.setAttribute('aria-pressed','false'));
+  savedThisVisit = true;                 // don't overwrite the stored baseline on a reset
+  syncUrl(); render(); scrollTo({top:0,behavior:'smooth'}); };
+
+/* ---------- restore any scores that arrived in the URL ---------- */
+DOMAINS.forEach(d=>{
+  if(!state[d.id]) return;
+  const b = document.querySelector(`.opt[data-d="${d.id}"][data-v="${state[d.id]}"]`);
+  if(b) b.setAttribute('aria-pressed','true');
+});
+if(baseline && !DOMAINS.some(d=>state[d.id])){
+  const n = $('#baseNote');
+  if(n){ n.hidden = false;
+    n.innerHTML = `<strong>Re-scoring.</strong> This card remembers your previous result${baselineDate?' from '+baselineDate:''} — fill it in again and it will show you exactly what moved.`; }
+}
+
+render();
+</script>
+</body>
+</html>
