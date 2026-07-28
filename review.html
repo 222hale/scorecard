@@ -362,7 +362,7 @@
 </section>
 
 <section id="secShape">
-  <h2>Your Shape</h2>
+  <h2>The Shape</h2>
   <div class="results" id="results"></div>
   <details class="tbl" id="tblWrap" hidden>
     <summary>View as table</summary>
@@ -522,17 +522,17 @@ const DOMAINS = [
 
 
 const TIERS = [
-  { min:6,  max:12, name:"Apprentice",   desc:"You are practicing dentistry inside somebody else's system. Everything here is learnable, and the fastest gains are not in your hands — they're in your eyes and your mouth: what you see, and what you say about it." },
-  { min:13, max:18, name:"Producer",     desc:"You're a solid clinical operator and the schedule is safe with you. Your growth is capped by your own two hands, which means the practice's growth is capped by how many hours you're willing to work." },
-  { min:19, max:23, name:"Multiplier",   desc:"The practice grows faster because you're in it, and not only on the days you produce. You're making other people better. Protect this — it's the rarest thing in dentistry and the hardest to hire for." },
-  { min:24, max:27, name:"Partner-Track",desc:"You're building the system, not just working in it. At this level the conversation stops being about your schedule and your comp and starts being about the direction of the practice — and you should be the one to open it." },
-  { min:28, max:30, name:"Architect",    desc:"You should be running something. If the practice you're in can't offer you a path to that, the market will, and that is a worse outcome for everyone than the conversation you've been putting off." }
+  { min:6,  max:12, name:"Apprentice",   desc:"This is a dentist practising inside somebody else's system. Everything here is learnable, and the fastest gains are not in the hands — they are in the eyes and the mouth: what gets seen, and what gets said about it." },
+  { min:13, max:18, name:"Producer",     desc:"A solid clinical operator — the schedule is safe with them. Their growth is capped by their own two hands, which means the practice's growth is capped by how many hours they are willing to work." },
+  { min:19, max:23, name:"Multiplier",   desc:"The practice grows faster because they are in it, and not only on the days they produce. They make other people better. Protect this — it is the rarest thing in dentistry and the hardest to hire for." },
+  { min:24, max:27, name:"Partner-Track",desc:"Building the system, not just working in it. At this level the conversation stops being about schedule and compensation and starts being about the direction of the practice — and they should be the one to open it." },
+  { min:28, max:30, name:"Architect",    desc:"This dentist should be running something. If the practice cannot offer a path to that, the market will — a worse outcome for everyone than the conversation nobody is having." }
 ];
 
 const SHAPES = [
-  { max:1, name:"Round", color:"var(--good)", tx:"Balanced. Nothing is dragging you down, so the move is to pick two domains and drive them a full level rather than nudging all seven." },
-  { max:2, name:"Tilted", color:"var(--warn)", tx:"One clear strength and one clear gap. This is the most common profile in a growing associate and the easiest to fix — the gap is usually a habit, not a talent." },
-  { max:9, name:"Spiky", color:"var(--crit)", tx:"You're being paid for one thing and it's carrying you. This is the classic associate profile and it is a hard ceiling: a practice cannot grow past the narrowest dimension of the person actually running it day to day — and in your building, that's you." }
+  { max:1, name:"Round", color:"var(--good)", tx:"Balanced. Nothing is dragging the total down, so the move is to pick two domains and drive them a full level rather than nudging all six." },
+  { max:2, name:"Tilted", color:"var(--warn)", tx:"One clear strength and one clear gap. The most common profile in a growing associate, and the easiest to fix — the gap is usually a habit, not a talent." },
+  { max:9, name:"Spiky", color:"var(--crit)", tx:"One thing is carrying them. This is the classic associate profile and it is a hard ceiling: a practice cannot grow past the narrowest dimension of the person actually running it day to day." }
 ];
 
 /* ============ deployment config ============ */
@@ -791,11 +791,11 @@ function render(){
       <p class="shapev"><span class="delta ${dt>0?'up':dt<0?'down':'flat'}" style="font-size:15px">${dt>0?'+'+dt:dt<0?dt:'±0'}</span>
         <span style="font-weight:650">${baseTotal} → ${total}</span></p>
       <p class="shapetx">${
-        dt>0 ? `You moved ${moved} domain${moved===1?'':'s'}. ${rounder<0
-                 ? 'And you got rounder — the gap between your best and worst narrowed, which is the harder and more valuable win.'
+        dt>0 ? `${moved} domain${moved===1?'':'s'} moved. ${rounder<0
+                 ? 'And the shape got rounder — the gap between best and worst narrowed, which is the harder and more valuable win.'
                  : rounder>0
-                   ? 'But you got spikier — you grew where you were already strong. The next quarter should go to the bottom two.'
-                   : 'Your shape held. Keep pushing the bottom two rather than the top.'}`
+                   ? 'But the shape got spikier — growth came where things were already strong. The next quarter belongs to the bottom two.'
+                   : 'The shape held. Keep pushing the bottom two rather than the top.'}`
         : dt<0 ? 'The number went down. Either the last score was generous or something slipped — both are worth naming out loud rather than re-scoring until it looks better.'
                : 'Same total. If the quarter felt busy, that is the finding: activity that does not move a level is not development.'
       }</p>
@@ -829,29 +829,29 @@ function render(){
           <p class="shapetx">${shape.tx}</p>
         </div>
         <div class="shapebox">
-          <p class="shapelbl">Your ceiling</p>
+          <p class="shapelbl">Ceiling domain</p>
           <p class="shapev">${focus[0].short} <span style="color:var(--muted);font-weight:500;font-size:14px">· level ${state[focus[0].id]}</span></p>
-          <p class="shapetx">This is the number the practice actually runs on. Every level you've earned above it is capacity the practice can't spend yet.</p>
+          <p class="shapetx">This is the number the practice actually runs on. Every level earned above it is capacity the practice cannot spend yet.</p>
         </div>
         <div class="shapebox">
           <p class="shapelbl">Next tier</p>
           ${nextTier
             ? `<p class="shapev">${nextTier.min-total} point${nextTier.min-total===1?'':'s'} to ${nextTier.name}</p>
-               <p class="shapetx">One level in one domain may be all it takes — and it will be cheaper to earn in the two below than in the one you're already best at.</p>`
+               <p class="shapetx">One level in one domain may be all it takes — and it will be cheaper to earn in the two below than in the one that is already strongest.</p>`
             : `<p class="shapev">Top of the ladder</p>
-               <p class="shapetx">There is no higher score on this card. The next move isn't a level — it's an ownership conversation.</p>`}
+               <p class="shapetx">There is no higher score on this card. The next move is not a level — it is an ownership conversation.</p>`}
         </div>
       </div>
       <div class="rpanel">
-        <p class="figtitle">Where you are round, where you are thin</p>
+        <p class="figtitle">Where the shape is round, where it is thin</p>
         <p class="figsub">Each spoke runs 0 at the center to 5 at the edge</p>
         ${radar(state, hasBase ? baseline : null)}
         <div style="margin-top:22px">${bars}</div>
       </div>
     </div>
     <div class="plan">
-      <div class="planhead"><h3 class="planttl">Your next 90 days</h3></div>
-      <p class="plansub">Your score is your two lowest domains, not your average — a practice can't grow past its narrowest dimension. Do these six things in the next quarter and re-score.</p>
+      <div class="planhead"><h3 class="planttl">The next 90 days</h3></div>
+      <p class="plansub">The score is the two lowest domains, not the average — a practice cannot grow past its narrowest dimension. Six things for the next quarter, then re-score.</p>
       <div class="pgrid">${plan}</div>
       <div class="commit">
         <p><strong style="color:var(--ink)">Commit to one.</strong> Pick the single action you'll have done before this time next month, and write down who is going to ask you about it.</p>
