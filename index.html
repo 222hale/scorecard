@@ -221,17 +221,122 @@
   footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--border);
     font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
+  /* ---------- print report header (screen-hidden) ---------- */
+  .printhead{display:none}
+  .ph-rule{height:4px;background:var(--series-1);margin-bottom:14pt}
+  .ph-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20pt}
+  .ph-brand{font-size:8.5pt;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--series-1);font-weight:700;margin:0 0 4pt}
+  .ph-title{font-size:20pt;font-weight:700;letter-spacing:-.02em;margin:0;line-height:1.1}
+  .ph-date{font-size:9pt;color:var(--muted);margin:0;text-align:right;white-space:nowrap}
+  .ph-meta{display:flex;flex-wrap:wrap;gap:0 26pt;margin-top:12pt;
+    padding-top:10pt;border-top:1px solid var(--border)}
+  .ph-meta .f{font-size:9.5pt}
+  .ph-meta .f b{display:block;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;margin-bottom:2pt}
+  .sigrow{display:none}
+  .printonly{display:none}
+  .psec{font-size:13pt;font-weight:680;letter-spacing:-.01em;margin:0 0 10pt;
+    padding-bottom:6pt;border-bottom:2px solid var(--series-1)}
+
   @media print{
-    body{background:#fff}
-    .themetoggle,.toolbar,.opt:not([aria-pressed="true"]){display:none}
-    .domain{break-inside:avoid;box-shadow:none}
-    .pcard,.results{break-inside:avoid}
-    header.hero{padding-top:0}
+    @page{ size: letter portrait; margin: 0.55in 0.6in; }
+    :root, :root[data-theme="dark"]{
+      color-scheme: light;
+      --surface-1:#fff; --page:#fff; --card:#fff;
+      --ink:#0b0b0b; --ink-2:#3c3b39; --muted:#6d6b66;
+      --grid:#e1e0d9; --axis:#b8b6ae;
+      --series-1:#1f5fae; --series-1-soft:#dce9f9;
+      --border:#d8d7d0; --chip:#f2f1ee; --shadow:none;
+    }
+    *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    body{background:#fff;font-size:10pt}
+    .wrap{max-width:none;padding:0;display:flex;flex-direction:column}
+
+    .themetoggle,.toolbar,.submitbox,.keepbox,.basenote,details.tbl,#tip,
+    .roletabs{display:none !important}
+    .opt:not([aria-pressed="true"]){display:none !important}
+    header.hero{display:none}
+    h2{display:none}
+    .sectionsub,.plateauNote{font-size:8.5pt}
+
+    .printhead{display:block;order:0;margin-bottom:16pt}
+    #secShape{order:1;margin:0}
+    #secScoring{order:2;margin:0;break-before:page}
+    #secLadder{order:3;margin:22pt 0 0;break-before:page}
+    footer{order:4;margin-top:14pt;padding-top:8pt;font-size:8pt}
+
+    /* a print page is ~816px, which trips the 860px stacking breakpoint — override it */
+    .rtop{display:grid !important;grid-template-columns:1fr 1fr !important}
+    .rpanel+.rpanel{border-left:1px solid var(--border) !important;border-top:none !important}
+    .results{border:1px solid var(--border);border-radius:8pt}
+    .rpanel{padding:12pt}
+    .pgrid{grid-template-columns:1fr 1fr !important}
+    .subrow{grid-template-columns:1fr 1fr !important}
+    .hero-n .v{font-size:34pt}
+    .hero-n .d{font-size:12pt}
+    .tier{font-size:14pt;margin:8pt 0 3pt}
+    .tierdesc,.shapetx{font-size:9pt;line-height:1.45}
+    .shapebox{margin-top:9pt;padding-top:8pt}
+    .figtitle{font-size:10pt}
+    .figsub{font-size:8pt;margin-bottom:8pt}
+    svg{width:225pt !important;max-width:225pt !important;margin:0 auto}
+    .axlabel{font-size:7pt}
+    .axsub{font-size:6.5pt}
+    .barrow{margin-bottom:4pt;grid-template-columns:110pt 1fr 20pt}
+    .barlbl{font-size:8.5pt}
+    .barval{font-size:9pt}
+    .bartrack{height:11pt}
+
+    .plan{break-before:page;border-top:none;padding:0}
+    .planttl{font-size:15pt}
+    .plansub{font-size:9pt}
+    .pgrid{gap:10pt}
+    .pcard{break-inside:avoid;padding:11pt;border-radius:6pt}
+    .pcard h4{font-size:11.5pt}
+    .pcard li{font-size:9pt;margin-bottom:5pt}
+    .commit{break-inside:avoid;padding:11pt;margin-top:12pt}
+    .commit .cline{font-size:10pt;margin-bottom:9pt;padding-bottom:5pt}
+    input[type="date"]::-webkit-calendar-picker-indicator{display:none !important}
+    .printonly{display:block}
+    #secScoring .sectionsub,#secLadder .sectionsub{display:none}
+
+    .sigrow{display:flex;gap:26pt;margin-top:16pt;break-inside:avoid}
+    .sigrow div{flex:1}
+    .sigrow .line{border-bottom:1px solid var(--axis);height:26pt}
+    .sigrow .lbl{font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--muted);font-weight:700;margin-top:4pt}
+
+    .domain{break-inside:avoid;box-shadow:none;border-radius:6pt;
+      padding:11pt 13pt;margin-bottom:8pt}
+    .dname{font-size:12.5pt}
+    .dprin{font-size:8.5pt}
+    .dq{font-size:8.5pt;margin-bottom:8pt}
+    .opt{padding:8pt 10pt;break-inside:avoid}
+    .opt .tx{font-size:9.5pt;line-height:1.45}
+    .lvname{font-size:7.5pt}
+
+    .ladder{break-inside:avoid}
+    .rung{padding:9pt 8pt}
+    .rung .nm{font-size:9.5pt}
+    .rung .bl{font-size:7.5pt}
   }
 </style>
 </head>
 <body>
 <div class="wrap">
+
+<div class="printhead" aria-hidden="true">
+  <div class="ph-rule"></div>
+  <div class="ph-top">
+    <div>
+      <p class="ph-brand">The Airway Dentists</p>
+      <h1 class="ph-title">The Full Stack Dentist Scorecard</h1>
+    </div>
+    <p class="ph-date" id="phDate"></p>
+  </div>
+  <div class="ph-meta" id="phMeta"></div>
+</div>
 
 <header class="hero">
   <button class="themetoggle" id="themeBtn">Dark</button>
@@ -240,21 +345,23 @@
   <p class="lede">A dentist gets hired for one thing and measured on one thing: what they produce with their hands. That's the ceiling. The practices that grow extraordinarily aren't built by the best clinician in the building — they're built by the dentist who is <strong>round instead of spiky</strong>. Six domains, scored twice: once by the doctor, once by their lead clinician. The number isn't the point. <strong>The shape is — and so is the gap between how those two people see it.</strong></p>
 </header>
 
-<section>
+<section id="secLadder">
+  <p class="printonly psec">Reference &mdash; how the five levels are defined</p>
   <h2>The Ladder</h2>
   <p class="sectionsub">The same five levels apply to every domain. They aren't about how hard you work — they're about how far the thing you're good at travels beyond your own hands.</p>
   <div class="ladder" id="ladder"></div>
   <p class="plateauNote"><b>Level 3 is the plateau.</b> A dentist who is a 3 across the board is a genuinely good associate — and will stay an associate. Every meaningful jump in a practice's growth comes from someone crossing 3 → 4 in a domain that isn't clinical.</p>
 </section>
 
-<section>
+<section id="secScoring">
+  <p class="printonly psec">Domain detail &mdash; the level selected for each</p>
   <h2>The Scoring</h2>
   <p class="basenote" id="baseNote" hidden></p>
   <p class="sectionsub">Pick the description that is true <em>today</em> — not the one that is true on a good day, and not the one being worked toward. Scoring generously is the fastest way to make this worthless. Say who is scoring at the bottom.</p>
   <div id="domains"></div>
 </section>
 
-<section>
+<section id="secShape">
   <h2>Your Shape</h2>
   <div class="results" id="results"></div>
   <details class="tbl" id="tblWrap" hidden>
@@ -262,7 +369,7 @@
     <table><thead><tr><th>Domain</th><th>Level</th><th class="n">Score</th></tr></thead><tbody id="tblBody"></tbody></table>
   </details>
   <div class="toolbar">
-    <button class="act" onclick="window.print()">Print / Save as PDF</button>
+    <button class="act" id="pdfBtn">Download PDF report</button>
     <button class="act ghost" id="resetBtn">Reset</button>
   </div>
 </section>
@@ -755,6 +862,11 @@ function render(){
         <label class="lbl" for="cmtDate">By when</label>
         <input class="cline" id="cmtDate" type="date">
       </div>
+      <div class="sigrow" aria-hidden="true">
+        <div><div class="line"></div><div class="lbl">Doctor</div></div>
+        <div><div class="line"></div><div class="lbl">Lead clinician</div></div>
+        <div><div class="line"></div><div class="lbl">Date</div></div>
+      </div>
       ${CONFIG.mode==='review' ? `
       <div class="submitbox">
         <p class="subttl">Log this scoring</p>
@@ -887,6 +999,27 @@ function wireSubmit(total, tier, focus){
   };
 }
 
+/* ---------- print report header ---------- */
+function fillPrintHead(){
+  const val = sel => { const el = $(sel); return el ? el.value.trim() : ''; };
+  const doc  = val('#subName');
+  const loc  = val('#subLoc');
+  const sup  = scorerRole === 'supervisor';
+  const by   = sup ? (val('#subScorer') || '—') : (doc || '—');
+  const d    = new Date();
+  $('#phDate').textContent = d.toLocaleDateString('en-US',
+    { month:'long', day:'numeric', year:'numeric' });
+  const fields = [
+    ['Doctor', doc || '—'],
+    ['Scored by', by],
+    ['Scoring type', sup ? 'Lead clinician assessment' : 'Self-assessment']
+  ];
+  if(loc) fields.push(['Location', loc]);
+  $('#phMeta').innerHTML = fields
+    .map(([k,v]) => `<p class="f"><b>${k}</b>${v}</p>`).join('');
+}
+window.addEventListener('beforeprint', fillPrintHead);
+
 /* ---------- tooltip ---------- */
 const tip=$('#tip');
 document.addEventListener('mouseover',e=>{
@@ -907,6 +1040,7 @@ if(matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.
 const syncBtn=()=>tb.textContent = document.documentElement.dataset.theme==='dark' ? 'Light' : 'Dark';
 syncBtn();
 tb.onclick=()=>{ document.documentElement.dataset.theme = document.documentElement.dataset.theme==='dark'?'light':'dark'; syncBtn(); render(); };
+$('#pdfBtn').onclick=()=>{ fillPrintHead(); window.print(); };
 $('#resetBtn').onclick=()=>{ DOMAINS.forEach(d=>delete state[d.id]);
   document.querySelectorAll('.opt').forEach(o=>o.setAttribute('aria-pressed','false'));
   savedThisVisit = true;                 // don't overwrite the stored baseline on a reset
