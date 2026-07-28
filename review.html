@@ -173,6 +173,11 @@
   .delta.down{color:var(--crit)} .delta.down:before{content:"▼";font-size:8px}
 
   /* ---------- submit / keep ---------- */
+  .roletabs{display:inline-flex;gap:2px;background:var(--border);border:1px solid var(--border);
+    border-radius:10px;padding:2px;margin-bottom:14px;flex-wrap:wrap}
+  .roletab{background:var(--card);border:none;border-radius:8px;padding:8px 14px;font:inherit;
+    font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
+  .roletab[aria-pressed="true"]{background:var(--series-1);color:#fff}
   .submitbox,.keepbox{margin-top:18px;border:1px solid var(--border);border-radius:12px;padding:18px;background:var(--surface-1)}
   .submitbox{border-color:var(--series-1)}
   .subttl{font-size:15px;font-weight:660;margin:0 0 5px}
@@ -230,9 +235,9 @@
 
 <header class="hero">
   <button class="themetoggle" id="themeBtn">Dark</button>
-  <p class="eyebrow">The Airway Dentists · 90-Day Development Review</p>
+  <p class="eyebrow">The Airway Dentists · Development Scorecard</p>
   <h1>The Full Stack Dentist<br><span class="thin">Scorecard</span></h1>
-  <p class="lede">You were hired for one thing and you're measured on one thing: what you produce with your hands. That's the ceiling. The practices that grow extraordinarily aren't built by the best clinician in the building — they're built by the dentist who is <strong>round instead of spiky</strong>. Six domains. Score yourself honestly. Your number is not the point; <strong>your shape is</strong>.</p>
+  <p class="lede">A dentist gets hired for one thing and measured on one thing: what they produce with their hands. That's the ceiling. The practices that grow extraordinarily aren't built by the best clinician in the building — they're built by the dentist who is <strong>round instead of spiky</strong>. Six domains, scored twice: once by the doctor, once by their lead clinician. The number isn't the point. <strong>The shape is — and so is the gap between how those two people see it.</strong></p>
 </header>
 
 <section>
@@ -243,9 +248,9 @@
 </section>
 
 <section>
-  <h2>Score Yourself</h2>
+  <h2>The Scoring</h2>
   <p class="basenote" id="baseNote" hidden></p>
-  <p class="sectionsub">Pick the description that's true today — not the one that's true on your best day, and not the one you're working toward. Scoring generously is the fastest way to make this worthless.</p>
+  <p class="sectionsub">Pick the description that is true <em>today</em> — not the one that is true on a good day, and not the one being worked toward. Scoring generously is the fastest way to make this worthless. Say who is scoring at the bottom.</p>
   <div id="domains"></div>
 </section>
 
@@ -273,10 +278,10 @@
 // Full Stack Dentist Scorecard — domain data
 const LADDER = [
   { n: 1, name: "Dependent",   blurb: "Someone else owns the outcome." },
-  { n: 2, name: "Capable",     blurb: "You can do it when asked." },
-  { n: 3, name: "Independent", blurb: "You own it end to end. Most good associates stop here." },
-  { n: 4, name: "Multiplier",  blurb: "You make other people better at it." },
-  { n: 5, name: "Architect",   blurb: "You built the system. It survives without you." }
+  { n: 2, name: "Capable",     blurb: "Can do it when asked." },
+  { n: 3, name: "Independent", blurb: "Owns it end to end. Most good associates stop here." },
+  { n: 4, name: "Multiplier",  blurb: "Makes other people better at it." },
+  { n: 5, name: "Architect",   blurb: "Built the system. It survives without them." }
 ];
 
 const DOMAINS = [
@@ -285,13 +290,13 @@ const DOMAINS = [
     short: "Clinical Range",
     axis: "Clinical\nRange",
     principle: "Airway First, Alignment Second.",
-    question: "What can your hands actually start and finish?",
+    question: "What can these hands actually start and finish?",
     levels: [
-      "You treat within general dentistry and refer anything orthodontic. Growth cases and adult expansion go out the door. You take whatever setup the aligner company's treatment planners send back.",
-      "You run clear aligner cases confidently — mild to moderate crowding, straightforward finishes. You're still following a manufacturer's plan rather than writing your own. Pediatric growth guidance and adult expansion are still referrals.",
-      "You treat pediatric guided-growth and expansion cases start to finish, and you write your own aligner prescriptions instead of accepting the default setup. You've begun adult expansion with DNA/mRNA appliances and you finish the ones you start.",
-      "Adult expansion with DNA/mRNA is routine. You know which case needs the arch developed before a single tray goes in, you sequence expansion against aligners deliberately, and you manage the ones that don't track. Other doctors hand you their stuck cases.",
-      "You set the orthodontic standard of care for the practice — who gets guided growth, who gets DNA/mRNA, who gets aligners alone, and in what order. You bring new appliance systems online and you teach them."
+      "Treats within general dentistry and refers anything orthodontic. Growth cases and adult expansion go out the door. Takes whatever setup the aligner company's treatment planners send back.",
+      "Runs clear aligner cases confidently — mild to moderate crowding, straightforward finishes. Still following a manufacturer's plan rather than writing their own. Pediatric growth guidance and adult expansion are still referrals.",
+      "Treats pediatric guided-growth and expansion cases start to finish, and writes their own aligner prescriptions instead of accepting the default setup. Has begun adult expansion with DNA/mRNA appliances and finishes the ones they start.",
+      "Adult expansion with DNA/mRNA is routine. Knows which case needs the arch developed before a single tray goes in, sequences expansion against aligners deliberately, and manages the ones that don't track. Other doctors hand over their stuck cases.",
+      "Sets the orthodontic standard of care for the practice — who gets guided growth, who gets DNA/mRNA, who gets aligners alone, and in what order. Brings new appliance systems online and teaches them."
     ],
     actions: [
       ["Take ten straightforward aligner cases you would normally refer, and run them yourself.","Stop accepting the default setup — mark up one treatment plan per case with what you actually want.","Shadow a senior doctor on four guided-growth cases before you take your own."],
@@ -306,13 +311,13 @@ const DOMAINS = [
     short: "Diagnostic Sight",
     axis: "Diagnostic\nSight",
     principle: "Cause First, Symptom Second.",
-    question: "What do you actually see when you look at a patient?",
+    question: "What gets seen when this doctor looks at a patient?",
     levels: [
-      "You diagnose the chief complaint and read teeth in isolation. Crowding looks like a spacing problem rather than evidence that an arch never finished developing. Airway, growth, and tongue space go unnoticed.",
-      "You run the checklist when prompted. The crowding gets recorded and the CBCT gets taken, but the findings don't yet assemble into a growth story or a treatment sequence.",
-      "Every patient, every time. You read arch form, transverse deficiency, tongue space, growth pattern, and airway together — and you can tell a developmental problem from an alignment problem before you pick an appliance.",
-      "Your assistants flag the narrow arch, the scalloped tongue, the mouth breather, and the tonsil grade before you sit down, because you trained them to. You calibrate the other doctors so a case gets the same read whoever sees it.",
-      "You own the diagnostic system — intake, photo and CBCT protocol, sleep-testing pathway, referral criteria. Diagnostic yield is a number you measure and move."
+      "Diagnoses the chief complaint and reads teeth in isolation. Crowding looks like a spacing problem rather than evidence that an arch never finished developing. Airway, growth, and tongue space go unnoticed.",
+      "Runs the checklist when prompted. The crowding gets recorded and the CBCT gets taken, but the findings don't yet assemble into a growth story or a treatment sequence.",
+      "Every patient, every time. Reads arch form, transverse deficiency, tongue space, growth pattern, and airway together — and can tell a developmental problem from an alignment problem before picking an appliance.",
+      "Their assistants flag the narrow arch, the scalloped tongue, the mouth breather, and the tonsil grade before the doctor sits down, because they were trained to. Calibrates the other doctors so a case gets the same read whoever sees it.",
+      "Owns the diagnostic system — intake, photo and CBCT protocol, sleep-testing pathway, referral criteria. Diagnostic yield is a number they measure and move."
     ],
     actions: [
       ["Add three airway questions to your exam and ask them out loud on every patient for 30 days.","Learn the craniofacial growth timeline cold: 55% by age 2, 75% by age 4, 95% by age 12.","Measure intercanine and intermolar width on ten patients. Look at them all together at the end of the week."],
@@ -327,13 +332,13 @@ const DOMAINS = [
     short: "The Conversation",
     axis: "The\nConversation",
     principle: "Empathy First, Technique Second.",
-    question: "Can you turn a diagnosis they didn't come in for into treatment they want?",
+    question: "Can a diagnosis the patient didn't come in for become treatment they want?",
     levels: [
-      "You present findings clinically and hope. The treatment coordinator closes it, or nobody does. A five-figure ortho fee is uncomfortable to say out loud.",
-      "You can explain aligners to an adult who already wants straighter teeth. A parent asking \"can't we just wait until all the adult teeth are in?\" usually ends the conversation.",
-      "You connect every finding to something they already live with — the snoring, the headaches, the kid who can't sleep or sit still. You present full developmental treatment and full fees without flinching, and you have a prepared answer for the eight objections, starting with why this can't wait.",
-      "The consult is a team performance you direct: the assistant has already planted the finding, the coordinator has financing ready, hygiene reinforces it at recall. You coach other doctors' presentations and you debrief the misses.",
-      "You built the consult framework, the objection playbook, and the fee and financing structure for ortho and airway cases. Case acceptance is a tracked number that improves for everyone, not just you."
+      "Presents findings clinically and hopes. The treatment coordinator closes it, or nobody does. A five-figure ortho fee is uncomfortable to say out loud.",
+      "Can explain aligners to an adult who already wants straighter teeth. A parent asking \"can't we just wait until all the adult teeth are in?\" usually ends the conversation.",
+      "Connects every finding to something the patient already lives with — the snoring, the headaches, the kid who can't sleep or sit still. Presents full developmental treatment and full fees without flinching, with a prepared answer for the eight objections, starting with why this can't wait.",
+      "The consult is a team performance they direct: the assistant has already planted the finding, the coordinator has financing ready, hygiene reinforces it at recall. Coaches other doctors' presentations and debriefs the misses.",
+      "Built the consult framework, the objection playbook, and the fee and financing structure for ortho and airway cases. Case acceptance is a tracked number that improves for everyone, not just them."
     ],
     actions: [
       ["Write out the eight objections you hear most — start with \"can't we just wait?\" — and a two-sentence answer for each.","Say the full ortho fee out loud, then stop talking. Practice the silence.","Sit in on five consults run by the strongest closer you can get to."],
@@ -348,13 +353,13 @@ const DOMAINS = [
     short: "Team Multiplication",
     axis: "Team\nMultiplication",
     principle: "Team First, Task Second.",
-    question: "Are your assistants extensions of you, or just people who hand you things?",
+    question: "Are the assistants extensions of this doctor, or just people who hand them things?",
     levels: [
-      "You work around your assistant. You do things any trained DA could do — records, scans, seating, tray checks — because it's faster than explaining. Frustration shows up as re-doing their work in silence.",
-      "Your DA handles routine tasks well: scans, photos, seating, chairside support. You answer questions when asked, but you aren't building anyone on purpose. If your regular assistant is out, the day falls apart.",
-      "You train your DAs deliberately — records, scans, appliance deliveries, activations, tray checks, what to flag on the airway list, and the exact words to use with a parent. They are extensions of you: the appointment starts before you walk in and continues after you leave.",
-      "Your assistants run whole segments of a case without you standing there — progress checks, deliveries, activations, patient education — within the scope your state allows. The DAs you developed can train the next ones, so your capacity no longer depends on your own presence.",
-      "You own clinical onboarding and career pathing for assistants. A new DA reaches real competence in weeks, not quarters. Retention is a number you're accountable for, and the practice can add a column because the people exist to staff it."
+      "Works around the assistant. Does things any trained DA could do — records, scans, seating, tray checks — because it's faster than explaining. Frustration shows up as re-doing their work in silence.",
+      "Their DA handles routine tasks well: scans, photos, seating, chairside support. Answers questions when asked, but isn't building anyone on purpose. If the regular assistant is out, the day falls apart.",
+      "Trains their DAs deliberately — records, scans, appliance deliveries, activations, tray checks, what to flag on the airway list, and the exact words to use with a parent. They are extensions of the doctor: the appointment starts before they walk in and continues after they leave.",
+      "Their assistants run whole segments of a case unsupervised — progress checks, deliveries, activations, patient education — within the scope the state allows. The DAs they developed can train the next ones, so capacity no longer depends on the doctor being in the room.",
+      "Owns clinical onboarding and career pathing for assistants. A new DA reaches real competence in weeks, not quarters. Retention is a number they're accountable for, and the practice can add a column because the people exist to staff it."
     ],
     actions: [
       ["List every task you did last week that a trained DA could have done. Give away three.","Ask your assistant what slows them down at the chair, then fix one thing this week.","Stop silently re-doing their work — teach the correction out loud, the first time."],
@@ -369,13 +374,13 @@ const DOMAINS = [
     short: "Demand Creation",
     axis: "Demand\nCreation",
     principle: "Their breath. Your better practice.",
-    question: "Do new patients arrive because of you?",
+    question: "Do new patients arrive because of this doctor?",
     levels: [
-      "You see whoever the schedule sends. You have no visibility outside the operatory.",
-      "You ask for reviews and referrals when it's easy. You participate in practice marketing when someone asks you to.",
-      "You generate measurable internal demand — reactivation, unscheduled treatment, and the siblings and parents you converted off your own pediatric cases. You're present and useful on the practice's channels.",
-      "You create outbound demand: lunch-and-learns, parent education nights, provider outreach. You have a real referral network — pediatricians, ENTs, sleep physicians, myofunctional therapists — that sends in both directions.",
-      "You own a channel that produces predictable new-patient flow — speaking, content, or a referral program that runs as a system. The schedule would feel it if you stopped."
+      "Sees whoever the schedule sends. No visibility outside the operatory.",
+      "Asks for reviews and referrals when it's easy. Participates in practice marketing when someone asks.",
+      "Generates measurable internal demand — reactivation, unscheduled treatment, and the siblings and parents converted off their own pediatric cases. Present and useful on the practice's channels.",
+      "Creates outbound demand: lunch-and-learns, parent education nights, provider outreach. Has a real referral network — pediatricians, ENTs, sleep physicians, myofunctional therapists — that sends in both directions.",
+      "Owns a channel that produces predictable new-patient flow — speaking, content, or a referral program that runs as a system. The schedule would feel it if they stopped."
     ],
     actions: [
       ["Ask every happy parent for a review by name, for 30 days straight.","Sit in on one marketing meeting and find out where your ortho patients actually come from.","Put your face and your story on the practice website."],
@@ -390,13 +395,13 @@ const DOMAINS = [
     short: "Leadership",
     axis: "Leadership",
     principle: "Why First, What Second.",
-    question: "You are the most senior person in the building. What happens because of that?",
+    question: "This is the most senior person in the building. What happens because of that?",
     levels: [
-      "You do the job in front of you. Problems get queued for someone above you — and since nobody above you is in the building, they mostly just sit. Culture is something that happens to you.",
-      "You're reliable, positive, and you follow through. You surface issues clearly instead of letting them fester, but you're still asking rather than deciding.",
-      "You own outcomes, not tasks. The unhappy parent, the case that isn't tracking, the team conflict at two o'clock on a Thursday — you handle it and then report it. The standard doesn't move on the days nobody would ever know, which is every day.",
-      "People follow your standard voluntarily. The team comes to you first by choice, not by org chart. You mentor newer doctors, and your learning velocity is visible — you bring something back from every course and it actually lands.",
-      "You carry the vision without needing it re-explained. You recruit, you set culture, and you make the call the way the founders would make it. This is the capability that makes a multi-location practice possible at all."
+      "Does the job in front of them. Problems get queued for someone above them — and since nobody above them is in the building, they mostly just sit. Culture is something that happens to them.",
+      "Reliable, positive, follows through. Surfaces issues clearly instead of letting them fester, but is still asking rather than deciding.",
+      "Owns outcomes, not tasks. The unhappy parent, the case that isn't tracking, the team conflict at two o'clock on a Thursday — handled and then reported, not escalated. The standard doesn't move on the days nobody would ever know, which is every day.",
+      "People follow their standard voluntarily. The team goes to them first by choice, not by org chart. Mentors newer doctors, and their learning velocity is visible — something comes back from every course and it actually lands.",
+      "Carries the vision without needing it re-explained. Recruits, sets culture, and makes the call the way the founders would make it. This is the capability that makes a multi-location practice possible at all."
     ],
     actions: [
       ["Handle the next unhappy parent yourself, all the way to resolution.","Pick one category of problem you currently queue and start deciding it the same day.","Choose one standard you'll hold on a day nobody would ever find out. Hold it."],
@@ -432,6 +437,7 @@ const CONFIG = {
 
 const state = {};
 const commit = { action:'', who:'', date:'' };   // survives re-render
+let scorerRole = 'self';                          // 'self' | 'supervisor'
 const $ = s => document.querySelector(s);
 
 /* ============ storage (guarded — degrades to URL-only) ============ */
@@ -751,14 +757,19 @@ function render(){
       </div>
       ${CONFIG.mode==='review' ? `
       <div class="submitbox">
-        <p class="subttl">Send this to your development lead</p>
-        <p class="subtx">Pressing send saves a row to the practice's results spreadsheet: your name, today's date, all six scores, your tier, your two focus domains, and the commitment you wrote above. Your development lead can see it. Nothing leaves this page unless you press the button. It isn't a grade — the point is that somebody knows what you're working on, so the 90 days have a witness.</p>
+        <p class="subttl">Log this scoring</p>
+        <div class="roletabs" role="group" aria-label="Who is scoring">
+          <button type="button" class="roletab" data-role="self" aria-pressed="true">Doctor scoring themselves</button>
+          <button type="button" class="roletab" data-role="supervisor" aria-pressed="false">Lead clinician scoring the doctor</button>
+        </div>
+        <p class="subtx">Pressing send saves a row to the practice's results spreadsheet and updates that doctor's own tab: the date, who scored, all six levels, the total, the tier, the two focus domains, and the commitment above. Both scorings sit side by side on the tab, so the gap between them is visible. Nothing leaves this page unless you press the button.</p>
         <div class="subrow">
-          <input class="fld" id="subName" type="text" placeholder="Your name" autocomplete="name">
+          <input class="fld" id="subName" type="text" placeholder="Doctor's name" autocomplete="name">
           <input class="fld" id="subLoc" type="text" placeholder="Location / practice" autocomplete="organization">
         </div>
+        <input class="fld" id="subScorer" type="text" placeholder="Your name (the lead clinician scoring)" autocomplete="name" hidden>
         <div class="subrow2">
-          <button class="act" id="subBtn">Send my results</button>
+          <button class="act" id="subBtn">Send this scoring</button>
           <span class="submsg" id="subMsg"></span>
         </div>
       </div>` : ''}
@@ -809,12 +820,38 @@ function render(){
 /* ---------- submit (review mode) ---------- */
 function wireSubmit(total, tier, focus){
   const btn=$('#subBtn'), msg=$('#subMsg');
+
+  // a second scoring can follow the first on the same page — never leave the button dead
+  const armButton = () => {
+    btn.disabled = false; btn.textContent = 'Send this scoring';
+    msg.textContent = ''; msg.className = 'submsg';
+  };
+  const applyRole = () => {
+    document.querySelectorAll('.roletab').forEach(t =>
+      t.setAttribute('aria-pressed', String(t.dataset.role === scorerRole)));
+    const sup = scorerRole === 'supervisor';
+    $('#subScorer').hidden = !sup;
+    $('#subName').placeholder = sup ? "Doctor being scored" : "Your name";
+  };
+  document.querySelectorAll('.roletab').forEach(t => t.onclick = () => {
+    scorerRole = t.dataset.role; applyRole(); armButton();
+  });
+  ['#subName','#subScorer','#subLoc'].forEach(sel => { $(sel).oninput = armButton; });
+  applyRole();
   btn.onclick = async () => {
     const name=$('#subName').value.trim();
-    if(!name){ msg.textContent='Add your name first.'; msg.className='submsg warn'; $('#subName').focus(); return; }
+    if(!name){ msg.textContent="Add the doctor's name first."; msg.className='submsg warn'; $('#subName').focus(); return; }
+    const scorer = scorerRole==='self' ? name : $('#subScorer').value.trim();
+    if(scorerRole==='supervisor' && !scorer){
+      msg.textContent='Add your name so we know who scored this.'; msg.className='submsg warn'; $('#subScorer').focus(); return; }
     const payload = {
-      date: today(), name,
+      date: today(),
+      doctor: name,
+      scored_by: scorer,
+      scorer_role: scorerRole,
+      name,                                   // kept so older sheet columns stay populated
       location: $('#subLoc').value.trim(),
+      domains: DOMAINS.map(d=>d.short).join('|'),
       total, max: DOMAINS.length*5, tier: tier.name,
       focus: focus.map(d=>d.short).join(' + '),
       commitment: commit.action,
@@ -838,7 +875,10 @@ function wireSubmit(total, tier, focus){
         headers:{'Content-Type':'text/plain;charset=utf-8'},
         body: JSON.stringify(payload)
       });
-      msg.textContent='Sent. Copy your 90-day link before you close this.'; msg.className='submsg ok';
+      msg.textContent = scorerRole==='supervisor'
+        ? 'Saved to ' + name + "'s tab. Put the re-score on the calendar below."
+        : 'Saved. Now hand this to your lead clinician for their scoring.';
+      msg.className='submsg ok';
       btn.textContent='Sent';
     }catch(err){
       btn.disabled=false;
