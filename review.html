@@ -146,9 +146,16 @@
   .pcard li::marker{color:var(--series-1);font-weight:700}
   .pcard li:last-child{margin-bottom:0}
   .commit{margin-top:18px;border:1px dashed var(--axis);border-radius:12px;padding:16px 18px;background:transparent}
-  .commit p{margin:0 0 10px;font-size:13.5px;color:var(--ink-2)}
-  .commit .line{border-bottom:1px solid var(--axis);height:26px;margin-bottom:8px}
-  .commit .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .commit p{margin:0 0 14px;font-size:13.5px;color:var(--ink-2)}
+  .commit .lbl{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;margin-bottom:3px}
+  .commit .cline{width:100%;border:none;border-bottom:1px solid var(--axis);border-radius:0;
+    background:transparent;color:var(--ink);font:inherit;font-size:15px;
+    padding:5px 2px 8px;margin-bottom:16px;display:block}
+  .commit .cline::placeholder{color:var(--muted);font-size:14px}
+  .commit .cline:focus{outline:none;border-bottom:2px solid var(--series-1);padding-bottom:7px}
+  .commit .cline:last-child{margin-bottom:0}
+  .commit input[type="date"]{max-width:220px;color-scheme:inherit}
 
   .empty{padding:40px 26px;text-align:center;color:var(--muted);font-size:15px}
 
@@ -424,6 +431,7 @@ const CONFIG = {
 };
 
 const state = {};
+const commit = { action:'', who:'', date:'' };   // survives re-render
 const $ = s => document.querySelector(s);
 
 /* ============ storage (guarded — degrades to URL-only) ============ */
@@ -667,19 +675,21 @@ function render(){
       <div class="pgrid">${plan}</div>
       <div class="commit">
         <p><strong style="color:var(--ink)">Commit to one.</strong> Pick the single action you'll have done before this time next month, and write down who is going to ask you about it.</p>
-        <div class="lbl">The action</div><div class="line"></div>
-        <div class="lbl">Who holds me to it</div><div class="line"></div>
-        <div class="lbl">Date</div><div class="line"></div>
+        <label class="lbl" for="cmtAction">The action</label>
+        <input class="cline" id="cmtAction" type="text" placeholder="e.g. Book one lunch-and-learn with a pediatrician">
+        <label class="lbl" for="cmtWho">Who holds me to it</label>
+        <input class="cline" id="cmtWho" type="text" placeholder="Someone who will actually ask you about it">
+        <label class="lbl" for="cmtDate">By when</label>
+        <input class="cline" id="cmtDate" type="date">
       </div>
       ${CONFIG.mode==='review' ? `
       <div class="submitbox">
         <p class="subttl">Send this to your development lead</p>
-        <p class="subtx">Your six scores, your tier, and your focus domains. Not a grade — the point is that somebody knows what you're working on, so the 90 days have a witness.</p>
+        <p class="subtx">Pressing send saves a row to the practice's results spreadsheet: your name, today's date, all six scores, your tier, your two focus domains, and the commitment you wrote above. Your development lead can see it. Nothing leaves this page unless you press the button. It isn't a grade — the point is that somebody knows what you're working on, so the 90 days have a witness.</p>
         <div class="subrow">
           <input class="fld" id="subName" type="text" placeholder="Your name" autocomplete="name">
           <input class="fld" id="subLoc" type="text" placeholder="Location / practice" autocomplete="organization">
         </div>
-        <input class="fld" id="subAction" type="text" placeholder="The one action you're committing to (optional)">
         <div class="subrow2">
           <button class="act" id="subBtn">Send my results</button>
           <span class="submsg" id="subMsg"></span>
@@ -687,7 +697,9 @@ function render(){
       </div>` : ''}
       <div class="keepbox">
         <p class="subttl">Keep this</p>
-        <p class="subtx">Nothing is saved on a server. Your scores live in the link itself — copy it and you can reopen this exact result on any device.</p>
+        <p class="subtx">${CONFIG.mode==='review'
+          ? 'Your scores are also encoded in the link itself, so you can reopen this exact result on any device — whether or not you sent it above.'
+          : 'This page saves nothing and sends nothing anywhere. Your scores live in the link itself — copy it and you can reopen this exact result on any device.'}</p>
         <div class="subrow2">
           <button class="act ghost" id="lnkNow">Copy my result link</button>
           <button class="act ghost" id="lnk90">Copy my 90-day re-score link</button>
@@ -702,6 +714,13 @@ function render(){
     store.set('fsd:last', JSON.stringify({ s: encode(state), d: today() }));
   }
   syncUrl();
+
+  // restore the commitment fields — render() rebuilds this panel on every score change
+  const cA=$('#cmtAction'), cW=$('#cmtWho'), cD=$('#cmtDate');
+  cA.value = commit.action; cW.value = commit.who; cD.value = commit.date;
+  cA.oninput = e => commit.action = e.target.value;
+  cW.oninput = e => commit.who    = e.target.value;
+  cD.oninput = e => commit.date   = e.target.value;
 
   const base = location.origin==='null' ? location.href.split('#')[0] : location.origin + location.pathname;
   $('#lnkNow').onclick = e => copy(base + '#s=' + encode(state), e.currentTarget);
@@ -724,7 +743,9 @@ function wireSubmit(total, tier, focus){
       location: $('#subLoc').value.trim(),
       total, max: DOMAINS.length*5, tier: tier.name,
       focus: focus.map(d=>d.short).join(' + '),
-      commitment: $('#subAction').value.trim(),
+      commitment: commit.action,
+      accountable_to: commit.who,
+      by_date: commit.date,
       code: encode(state),
       link: (location.origin==='null'?location.href.split('#')[0]:location.origin+location.pathname)+'#s='+encode(state)
     };
