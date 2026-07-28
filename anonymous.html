@@ -473,6 +473,73 @@ function syncUrl(){
   history.replaceState(null,'', location.pathname + location.search + (p.toString()? '#'+p : ''));
 }
 const today = () => new Date().toISOString().slice(0,10);
+
+/* ---------- US federal holidays + next business day ---------- */
+const nthWeekday = (y,m,wd,n) => {           // m is 0-indexed
+  const d = new Date(y,m,1); let c = 0;
+  for(;;){ if(d.getDay()===wd && ++c===n) return new Date(d); d.setDate(d.getDate()+1); }
+};
+const lastWeekday = (y,m,wd) => {
+  const d = new Date(y,m+1,0);
+  while(d.getDay()!==wd) d.setDate(d.getDate()-1);
+  return d;
+};
+function federalHolidays(y){
+  const out = [];
+  // fixed-date, shifted to the observed weekday
+  [[0,1],[5,19],[6,4],[10,11],[11,25]].forEach(([m,day])=>{
+    let d = new Date(y,m,day);
+    if(d.getDay()===6) d = new Date(y,m,day-1);        // Sat -> observed Friday
+    else if(d.getDay()===0) d = new Date(y,m,day+1);   // Sun -> observed Monday
+    out.push(d);
+  });
+  out.push(nthWeekday(y,0,1,3));    // MLK Day — 3rd Monday of January
+  out.push(nthWeekday(y,1,1,3));    // Presidents' Day — 3rd Monday of February
+  out.push(lastWeekday(y,4,1));     // Memorial Day — last Monday of May
+  out.push(nthWeekday(y,8,1,1));    // Labor Day — 1st Monday of September
+  out.push(nthWeekday(y,9,1,2));    // Columbus Day — 2nd Monday of October
+  out.push(nthWeekday(y,10,4,4));   // Thanksgiving — 4th Thursday of November
+  return out.map(d=>d.toDateString());
+}
+function nextBusinessDay(d){
+  const hol = new Set([...federalHolidays(d.getFullYear()), ...federalHolidays(d.getFullYear()+1)]);
+  const x = new Date(d);
+  while(x.getDay()===0 || x.getDay()===6 || hol.has(x.toDateString())) x.setDate(x.getDate()+1);
+  return x;
+}
+function rescoreDate(){
+  const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+90);
+  return nextBusinessDay(d);
+}
+const CAL_GUESTS = "kyle@theairwaydentists.com,kalli@theairwaydentists.com";
+const CAL_TZ = "America/Chicago";
+function calendarUrl({total, tierName, focusNames, rescoreLink}){
+  const d = rescoreDate(), p = n => String(n).padStart(2,'0');
+  const ymd = `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`;
+  const who = (CONFIG.mode==='review' && $('#subName')) ? $('#subName').value.trim() : '';
+  const title = who ? `Full Stack Dentist re-score — ${who}`
+                    : 'Full Stack Dentist — 90-day re-score';
+  const body = [
+    'Time to re-score the Full Stack Dentist scorecard.',
+    '',
+    "Open this link — it remembers today's numbers and shows you exactly what moved:",
+    rescoreLink,
+    '',
+    `Score on ${today()}: ${total} of ${DOMAINS.length*5} — ${tierName}`,
+    `Focus domains: ${focusNames}`,
+    commit.action ? `Committed to: ${commit.action}` : '',
+    commit.who    ? `Accountable to: ${commit.who}`  : '',
+    commit.date   ? `Self-set deadline: ${commit.date}` : ''
+  ].filter(Boolean).join('\n');
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    + '&text='    + encodeURIComponent(title)
+    + '&dates='   + ymd + 'T090000/' + ymd + 'T093000'
+    + '&ctz='     + encodeURIComponent(CAL_TZ)
+    + '&details=' + encodeURIComponent(body)
+    + (CONFIG.mode==='review' ? '&add=' + encodeURIComponent(CAL_GUESTS) : '');
+}
+const prettyDate = d => d.toLocaleDateString('en-US',
+  { weekday:'long', month:'long', day:'numeric', year:'numeric' });
 async function copy(text, btn){
   try { await navigator.clipboard.writeText(text); }
   catch(e){ const t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select();
@@ -701,10 +768,11 @@ function render(){
           ? 'Your scores are also encoded in the link itself, so you can reopen this exact result on any device — whether or not you sent it above.'
           : 'This page saves nothing and sends nothing anywhere. Your scores live in the link itself — copy it and you can reopen this exact result on any device.'}</p>
         <div class="subrow2">
+          <button class="act" id="calBtn">Put my 90-day re-score on the calendar</button>
           <button class="act ghost" id="lnkNow">Copy my result link</button>
-          <button class="act ghost" id="lnk90">Copy my 90-day re-score link</button>
         </div>
-        <p class="subhint">The re-score link opens a blank scorecard that remembers today's numbers, so when you fill it in again in 90 days it shows you exactly what moved.</p>
+        <p class="subhint">Books 30 minutes at 9:00 AM Central on <strong id="calWhen"></strong>${
+          CONFIG.mode==='review' ? ', and invites Kyle and Kalli' : ''}. The invite carries your re-score link, so in 90 days you open it from the calendar and the card shows you exactly what moved. Ninety days from today lands on a weekend or federal holiday, it rolls to the next working day.</p>
       </div>
     </div>`;
 
@@ -723,8 +791,14 @@ function render(){
   cD.oninput = e => commit.date   = e.target.value;
 
   const base = location.origin==='null' ? location.href.split('#')[0] : location.origin + location.pathname;
+  const rescoreLink = base + '#b=' + encode(state) + '&bd=' + today();
   $('#lnkNow').onclick = e => copy(base + '#s=' + encode(state), e.currentTarget);
-  $('#lnk90').onclick  = e => copy(base + '#b=' + encode(state) + '&bd=' + today(), e.currentTarget);
+  $('#calWhen').textContent = prettyDate(rescoreDate());
+  $('#calBtn').onclick = () => window.open(calendarUrl({
+    total, tierName: tier.name,
+    focusNames: focus.map(d=>d.short).join(' + '),
+    rescoreLink
+  }), '_blank', 'noopener');
   if(CONFIG.mode==='review') wireSubmit(total, tier, focus);
 
   $('#tblBody').innerHTML = DOMAINS.map(d=>
