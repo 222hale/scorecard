@@ -228,87 +228,108 @@
   .psec{font-size:13pt;font-weight:680;letter-spacing:-.01em;margin:0 0 10pt;
     padding-bottom:6pt;border-bottom:2px solid var(--series-1)}
 
+  /* ---------- print report (screen-hidden) ---------- */
+  .printreport{display:none}
+
   @media print{
-    @page{ size: letter portrait; margin: 0.55in 0.6in; }
+    @page{ size: letter portrait; margin: 0.5in 0.55in; }
     :root, :root[data-theme="dark"]{
       color-scheme: light;
       --surface-1:#fff; --page:#fff; --card:#fff;
       --ink:#0b0b0b; --ink-2:#3c3b39; --muted:#6d6b66;
-      --grid:#e1e0d9; --axis:#b8b6ae;
-      --series-1:#1f5fae; --series-1-soft:#dce9f9;
-      --border:#d8d7d0; --chip:#f2f1ee; --shadow:none;
+      --grid:#e4e3dd; --axis:#b8b6ae;
+      --series-1:#1f5fae; --series-1-soft:#e3edf9;
+      --border:#dddcd5; --chip:#f2f1ee; --shadow:none;
     }
     *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-    body{background:#fff;font-size:10pt}
-    .wrap{max-width:none;padding:0;display:flex;flex-direction:column}
+    body{background:#fff;font-size:10pt;color:var(--ink)}
 
-    .themetoggle,.toolbar,.submitbox,.keepbox,.basenote,#tip,
-    .roletabs{display:none !important}
-    .opt:not([aria-pressed="true"]){display:none !important}
-    header.hero{display:none}
-    h2{display:none}
-    .sectionsub,.plateauNote{font-size:8.5pt}
+    /* the interactive page is entirely replaced by the print report */
+    header.hero, #secLadder, #secScoring, #secShape, footer, #tip{display:none !important}
+    .wrap{max-width:none;padding:0}
 
-    .printhead{display:block;order:0;margin-bottom:16pt}
-    #secShape{order:1;margin:0}
-    #secScoring{order:2;margin:0;break-before:page}
-    #secLadder{order:3;margin:22pt 0 0;break-before:page}
-    footer{order:4;margin-top:14pt;padding-top:8pt;font-size:8pt}
+    .printhead{display:block;margin-bottom:11pt}
+    .printreport{display:block}
+    .ppage2{break-before:page;padding-top:2pt}
+    .phero,.pstats,.pladder,.prows{break-inside:avoid}
 
-    /* a print page is ~816px, which trips the 860px stacking breakpoint — override it */
-    .rtop{display:grid !important;grid-template-columns:1fr 1fr !important}
-    .rpanel+.rpanel{border-left:1px solid var(--border) !important;border-top:none !important}
-    .results{border:1px solid var(--border);border-radius:8pt}
-    .rpanel{padding:12pt}
-    .pgrid{grid-template-columns:1fr 1fr !important}
-    .subrow{grid-template-columns:1fr 1fr !important}
-    .hero-n .v{font-size:34pt}
-    .hero-n .d{font-size:12pt}
-    .tier{font-size:14pt;margin:8pt 0 3pt}
-    .tierdesc,.shapetx{font-size:9pt;line-height:1.45}
-    .shapebox{margin-top:9pt;padding-top:8pt}
-    .figtitle{font-size:10pt}
-    .figsub{font-size:8pt;margin-bottom:8pt}
-    svg{width:225pt !important;max-width:225pt !important;margin:0 auto}
-    .axlabel{font-size:7pt}
-    .axsub{font-size:6.5pt}
-    .barrow{margin-bottom:4pt;grid-template-columns:110pt 1fr 20pt}
-    .barlbl{font-size:8.5pt}
-    .barval{font-size:9pt}
-    .bartrack{height:11pt}
+    /* ---- page 1: hero ---- */
+    .phero{display:grid;grid-template-columns:1.02fr 1fr;gap:20pt;align-items:center;
+      border:1px solid var(--border);border-left:3pt solid var(--series-1);
+      border-radius:4pt;padding:13pt 16pt;background:#fbfcfe}
+    .pscorelbl{font-size:7.5pt;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--muted);font-weight:700;margin:0 0 4pt}
+    .pscore{font-size:42pt;line-height:.92;font-weight:700;letter-spacing:-.03em;margin:0;color:var(--series-1)}
+    .pscore span{font-size:15pt;font-weight:500;color:var(--muted);margin-left:6pt;letter-spacing:0}
+    .ptier{font-size:15pt;font-weight:680;letter-spacing:-.01em;margin:7pt 0 3pt}
+    .ptierd{font-size:9pt;line-height:1.45;color:var(--ink-2);margin:0}
+    .pheroR svg{width:190pt !important;max-width:190pt !important;margin:0 auto}
+    .pheroR .legend{display:none}
 
-    .plan{break-before:page;border-top:none;padding:0}
-    .planttl{font-size:15pt}
-    .plansub{font-size:9pt}
-    .pgrid{gap:10pt}
-    .pcard{break-inside:avoid;padding:11pt;border-radius:6pt}
-    .pcard h4{font-size:11.5pt}
-    .pcard li{font-size:9pt;margin-bottom:5pt}
-    .commit{break-inside:avoid;padding:11pt;margin-top:12pt}
-    .commit .cline{font-size:10pt;margin-bottom:9pt;padding-bottom:5pt}
-    input[type="date"]::-webkit-calendar-picker-indicator{display:none !important}
-    .printonly{display:block}
-    #secScoring .sectionsub,#secLadder .sectionsub{display:none}
+    /* ---- page 1: domain rows ---- */
+    .prows{margin:12pt 0 0;border-top:1px solid var(--border)}
+    .prow{display:grid;grid-template-columns:112pt 1fr 20pt 74pt;gap:10pt;align-items:center;
+      padding:4.4pt 2pt;border-bottom:1px solid var(--grid)}
+    .pdom{font-size:9pt;color:var(--ink-2);text-align:right}
+    .prow.pfocus .pdom{font-weight:700;color:var(--ink)}
+    .prow.pfocus .pdom:after{content:" ▸";color:var(--crit)}
+    .ptrack{height:9pt;background:var(--chip);border-radius:2pt;overflow:hidden}
+    .pfill{height:100%;background:var(--series-1);border-radius:0 2pt 2pt 0}
+    .pnum{font-size:10pt;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+    .plvl{font-size:7.5pt;letter-spacing:.09em;text-transform:uppercase;
+      color:var(--muted);font-weight:700}
 
-    .sigrow{display:flex;gap:26pt;margin-top:16pt;break-inside:avoid}
-    .sigrow div{flex:1}
-    .sigrow .line{border-bottom:1px solid var(--axis);height:26pt}
-    .sigrow .lbl{font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;
-      color:var(--muted);font-weight:700;margin-top:4pt}
+    /* ---- page 1: stat cards ---- */
+    .pstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9pt;margin-top:12pt}
+    .pstat{border:1px solid var(--border);border-radius:4pt;padding:9pt 10pt;background:var(--surface-1)}
+    .pstatl{font-size:7pt;letter-spacing:.13em;text-transform:uppercase;
+      color:var(--muted);font-weight:700;margin:0 0 4pt}
+    .pstatv{font-size:11.5pt;font-weight:680;margin:0 0 5pt;letter-spacing:-.01em;line-height:1.2}
+    .pstatb{font-size:8pt;line-height:1.42;color:var(--ink-2);margin:0}
 
-    .domain{break-inside:avoid;box-shadow:none;border-radius:6pt;
-      padding:11pt 13pt;margin-bottom:8pt}
-    .dname{font-size:12.5pt}
-    .dprin{font-size:8.5pt}
-    .dq{font-size:8.5pt;margin-bottom:8pt}
-    .opt{padding:8pt 10pt;break-inside:avoid}
-    .opt .tx{font-size:9.5pt;line-height:1.45}
-    .lvname{font-size:7.5pt}
+    /* ---- page 1: ladder strip ---- */
+    .pladder{display:flex;justify-content:space-between;gap:8pt;margin-top:11pt;
+      padding-top:7pt;border-top:1px solid var(--border)}
+    .pladder span{font-size:7.5pt;letter-spacing:.06em;text-transform:uppercase;
+      color:var(--muted);font-weight:600}
+    .pladder b{color:var(--series-1);font-weight:800;margin-right:2pt}
 
-    .ladder{break-inside:avoid}
-    .rung{padding:9pt 8pt}
-    .rung .nm{font-size:9.5pt}
-    .rung .bl{font-size:7.5pt}
+    /* ---- page 2 ---- */
+    .ph2{font-size:19pt;font-weight:700;letter-spacing:-.02em;margin:0 0 5pt;
+      text-transform:none;color:var(--ink);display:block}
+    .ph2sub{font-size:9.5pt;line-height:1.5;color:var(--ink-2);margin:0 0 14pt;max-width:78%}
+    .ph2sub b{color:var(--ink)}
+    .pplan{display:grid;grid-template-columns:1fr 1fr;gap:12pt}
+    .pcard2{border:1px solid var(--border);border-top:2.5pt solid var(--series-1);
+      border-radius:4pt;padding:12pt 13pt;break-inside:avoid;background:var(--surface-1)}
+    .prank{font-size:7pt;letter-spacing:.13em;text-transform:uppercase;
+      color:var(--crit);font-weight:700;margin:0 0 4pt}
+    .pcard2 h3{font-size:13pt;font-weight:680;margin:0 0 3pt;letter-spacing:-.01em}
+    .pmove2{font-size:8.5pt;font-weight:700;color:var(--series-1);margin:0 0 9pt}
+    .pcard2 ol{margin:0;padding-left:15pt}
+    .pcard2 li{font-size:9pt;line-height:1.45;color:var(--ink-2);margin-bottom:6pt}
+    .pcard2 li::marker{color:var(--series-1);font-weight:700}
+    .pcard2 li:last-child{margin-bottom:0}
+
+    .pcommit{margin-top:15pt;border:1px solid var(--border);border-radius:4pt;
+      padding:12pt 13pt;break-inside:avoid;background:#fbfcfe}
+    .pcomlbl{font-size:7pt;letter-spacing:.13em;text-transform:uppercase;
+      color:var(--muted);font-weight:700;margin:0 0 7pt}
+    .pcomtab{width:100%;border-collapse:collapse}
+    .pcomtab th{width:118pt;text-align:left;font-size:8pt;letter-spacing:.05em;
+      text-transform:uppercase;color:var(--muted);font-weight:700;
+      padding:5pt 0;vertical-align:top}
+    .pcomtab td{font-size:10.5pt;color:var(--ink);padding:5pt 0;
+      border-bottom:1px solid var(--grid)}
+
+    .psign{display:flex;gap:24pt;margin-top:22pt;break-inside:avoid}
+    .psign > div{flex:1}
+    .pline{border-bottom:1px solid var(--axis);height:24pt}
+    .psign p{font-size:7pt;letter-spacing:.13em;text-transform:uppercase;
+      color:var(--muted);font-weight:700;margin:4pt 0 0}
+    .pfoot{display:flex;justify-content:space-between;gap:16pt;margin-top:26pt;
+      padding-top:8pt;border-top:1px solid var(--border);
+      font-size:7.5pt;color:var(--muted);letter-spacing:.04em}
   }
 </style>
 </head>
@@ -326,6 +347,7 @@
   </div>
   <div class="ph-meta" id="phMeta"></div>
 </div>
+<div class="printreport" id="printReport" aria-hidden="true"></div>
 
 <header class="hero">
   <button class="themetoggle" id="themeBtn">Dark</button>
@@ -530,6 +552,7 @@ const CONFIG = {
 const state = {};
 const commit = { action:'', who:'', date:'' };   // survives re-render
 let scorerRole = 'self';                          // 'self' | 'supervisor'
+let lastResult = null;                            // last computed result, for the print layout
 const $ = s => document.querySelector(s);
 
 /* ============ storage (guarded — degrades to URL-only) ============ */
@@ -746,6 +769,7 @@ function render(){
   const sorted = [...DOMAINS].sort((a,b)=> state[a.id]-state[b.id] || DOMAINS.indexOf(a)-DOMAINS.indexOf(b));
   const focus  = sorted.slice(0,2);
   const focusIds = new Set(focus.map(d=>d.id));
+  lastResult = { total, tier, focus, shape, spread, nextTier };
 
   const hasBase = baseline && DOMAINS.every(d=>baseline[d.id]);
   const baseTotal = hasBase ? DOMAINS.reduce((s,d)=>s+baseline[d.id],0) : null;
@@ -1067,6 +1091,102 @@ function buildReport(total, tier, focus, shape, spread){
   };
 }
 
+/* ---------- print report: page 1 results, page 2 plan ---------- */
+function buildPrintReport(){
+  const box = $('#printReport');
+  if(!lastResult){ box.innerHTML = ''; return; }
+  const { total, tier, focus, shape, spread, nextTier } = lastResult;
+  const max = DOMAINS.length * 5;
+  const focusIds = new Set(focus.map(d => d.id));
+
+  const rows = [...DOMAINS].sort((a,b) => state[b.id]-state[a.id]).map(d => {
+    const v = state[d.id];
+    return `<div class="prow${focusIds.has(d.id) ? ' pfocus' : ''}">
+      <div class="pdom">${d.short}</div>
+      <div class="ptrack"><div class="pfill" style="width:${v/5*100}%"></div></div>
+      <div class="pnum">${v}</div>
+      <div class="plvl">${LADDER[v-1].name}</div>
+    </div>`;
+  }).join('');
+
+  const stat = (label, value, body) =>
+    `<div class="pstat"><p class="pstatl">${label}</p>
+     <p class="pstatv">${value}</p><p class="pstatb">${body}</p></div>`;
+
+  const page1 = `
+    <section class="ppage">
+      <div class="phero">
+        <div class="pheroL">
+          <p class="pscorelbl">Total score</p>
+          <p class="pscore">${total}<span>/ ${max}</span></p>
+          <p class="ptier">${tier.name}</p>
+          <p class="ptierd">${tier.desc}</p>
+        </div>
+        <div class="pheroR">${radar(state, null)}</div>
+      </div>
+
+      <div class="prows">${rows}</div>
+
+      <div class="pstats">
+        ${stat('Shape', shape.name + ' · spread of ' + spread, shape.tx)}
+        ${stat('Ceiling domain', focus[0].short + ' · level ' + state[focus[0].id],
+               'The number the practice actually runs on. Every level earned above it is capacity the practice cannot spend yet.')}
+        ${nextTier
+          ? stat('Next tier', (nextTier.min - total) + ' point' + (nextTier.min-total===1?'':'s') + ' to ' + nextTier.name,
+                 'One level in one domain may be all it takes — cheaper to earn in the two below than in the one already strongest.')
+          : stat('Next tier', 'Top of the ladder',
+                 'There is no higher score on this card. The next move is not a level — it is an ownership conversation.')}
+      </div>
+
+      <div class="pladder">
+        ${LADDER.map(l => `<span><b>${l.n}</b> ${l.name}</span>`).join('')}
+      </div>
+    </section>`;
+
+  const page2 = `
+    <section class="ppage ppage2">
+      <h2 class="ph2">The next 90 days</h2>
+      <p class="ph2sub">The score is the two lowest domains, not the average — a practice cannot grow past its
+        narrowest dimension. Six actions for the quarter, then re-score on
+        <b>${prettyDate(rescoreDate())}</b>.</p>
+
+      <div class="pplan">
+        ${focus.map((d,i) => {
+          const v = state[d.id];
+          return `<div class="pcard2">
+            <p class="prank">${i===0 ? 'Lowest domain' : 'Second lowest'}</p>
+            <h3>${d.short}</h3>
+            <p class="pmove2">${v===5 ? 'Level 5 — hold it and hand it off'
+              : 'Level ' + v + ' → ' + (v+1) + ' · ' + LADDER[v-1].name + ' → ' + LADDER[v].name}</p>
+            <ol>${d.actions[v-1].map(a => `<li>${a}</li>`).join('')}</ol>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <div class="pcommit">
+        <p class="pcomlbl">The commitment</p>
+        <table class="pcomtab">
+          <tr><th>The action</th><td>${commit.action || '&nbsp;'}</td></tr>
+          <tr><th>Who holds me to it</th><td>${commit.who || '&nbsp;'}</td></tr>
+          <tr><th>By when</th><td>${commit.date ? prettyDate(new Date(commit.date + 'T12:00:00')) : '&nbsp;'}</td></tr>
+        </table>
+      </div>
+
+      <div class="psign">
+        <div><div class="pline"></div><p>Doctor</p></div>
+        <div><div class="pline"></div><p>Lead clinician</p></div>
+        <div><div class="pline"></div><p>Date</p></div>
+      </div>
+
+      <div class="pfoot">
+        <span>The Full Stack Dentist Scorecard · The Airway Dentists</span>
+        <span>Foundation first, teeth second.</span>
+      </div>
+    </section>`;
+
+  box.innerHTML = page1 + page2;
+}
+
 /* ---------- print report header ---------- */
 function fillPrintHead(){
   const val = sel => { const el = $(sel); return el ? el.value.trim() : ''; };
@@ -1085,6 +1205,7 @@ function fillPrintHead(){
   if(loc) fields.push(['Location', loc]);
   $('#phMeta').innerHTML = fields
     .map(([k,v]) => `<p class="f"><b>${k}</b>${v}</p>`).join('');
+  buildPrintReport();
 }
 window.addEventListener('beforeprint', fillPrintHead);
 
@@ -1109,7 +1230,7 @@ const syncBtn=()=>tb.textContent = document.documentElement.dataset.theme==='dar
 syncBtn();
 tb.onclick=()=>{ document.documentElement.dataset.theme = document.documentElement.dataset.theme==='dark'?'light':'dark'; syncBtn(); render(); };
 $('#pdfBtn').onclick=()=>{ fillPrintHead(); window.print(); };
-$('#resetBtn').onclick=()=>{ DOMAINS.forEach(d=>delete state[d.id]);
+$('#resetBtn').onclick=()=>{ lastResult = null; DOMAINS.forEach(d=>delete state[d.id]);
   document.querySelectorAll('.opt').forEach(o=>o.setAttribute('aria-pressed','false'));
   savedThisVisit = true;                 // don't overwrite the stored baseline on a reset
   syncUrl(); render(); scrollTo({top:0,behavior:'smooth'}); };
